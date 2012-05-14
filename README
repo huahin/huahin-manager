@@ -1,0 +1,97 @@
+Huahin Manager
+
+Huahin Manager is Hadoop MapReduce Job Management System.
+Huahin can get a list of MapReduce jobs, get status, do a kill for the job.
+
+Huahin Manager is distributed under Apache License 2.0.
+
+
+-----------------------------------------------------------------------------
+Requirements
+  * Java 6+
+
+-----------------------------------------------------------------------------
+Install Huahin Manager
+  ~ $ tar xzf huahin-manager-0.1.tar.gz
+
+-----------------------------------------------------------------------------
+Configure Huahin Manager
+
+Edit the huahin-manager-0.1/conf/huahinManager.properties file and set mapred.job.tracker property to the JobTracker URI. For example:
+
+  mapred.job.tracker=localhost:9001
+
+When you change the boot port, edit the huahin-manager-0.1/conf/port file.
+
+-----------------------------------------------------------------------------
+Start/Stop Huahin Manager
+
+To start/stop Huahin Manager use Huahin Manager's bin/manager script. For example:
+
+  $ bin/manager start
+
+-----------------------------------------------------------------------------
+Test Huahin Manager is working
+
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list"
+[
+  {
+    "jobid": "job_201205111223_0001",
+    "mapComplete": "100.0%",
+    "name": "JOB_EBCF7626A41F34B4C7276DB2B152336F",
+    "priority": "NORMAL",
+    "reduceComplete": "100.0%",
+    "schedulingInfo": "NA",
+    "startTime": "Fri May 11 12:25:18 JST 2012",
+    "state": "SUCCEEDED",
+    "user": "huahin"
+  }
+]
+
+-----------------------------------------------------------------------------
+Huahin Manager REST APIs
+
+Get all job list.
+  For example:
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list"
+
+Get failed job list.
+  For example:
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/failed"
+
+Get killed job list.
+  For example:
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/killed"
+
+Get prep job list.
+  For example:
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/prep"
+
+Get running job list.
+  For example:
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/running"
+
+Get succeeded job list.
+  For example:
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/succeeded"
+
+Get job status.
+  {JOBID} specifies the jobid.
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/status/{JOBID}"
+
+  For example:
+  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/status/job_201205111223_0001"
+
+Kill job for ID.
+  {JOBID} specifies the job ID.
+  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/id/{JOBID}"
+
+  For example:
+  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/id/job_201205111223_0001"
+
+Kill job for job name.
+  {JOBNAME} specifies the job name.
+  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/name/{JOBNAME}"
+
+  For example:
+  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/name/WORD_COUNT_JOB"
