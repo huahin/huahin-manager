@@ -1,6 +1,6 @@
 Huahin Manager
 
-Huahin Manager is Hadoop MapReduce Job Management System.
+Huahin Manager is a Simple Management System for Hadoop MapReduce Job.
 Huahin can get a list of MapReduce jobs, get status, do a kill for the job.
 
 Huahin Manager is distributed under Apache License 2.0.
