@@ -2,6 +2,7 @@ Huahin Manager
 
 Huahin Manager is a Simple Management System for Hadoop MapReduce Job.
 Huahin can get a list of MapReduce jobs, get status, do a kill for the job.
+ (Job queue management will be implemented in the future.)
 
 Huahin Manager is distributed under Apache License 2.0.
 
@@ -37,7 +38,7 @@ To start/stop Huahin Manager use Huahin Manager's bin/manager script. For exampl
 -----------------------------------------------------------------------------
 Test Huahin Manager is working
 
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/list"
 [
   {
     "jobid": "job_201205111223_0001",
@@ -57,45 +58,45 @@ Huahin Manager REST APIs
 
 Get all job list.
   For example:
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/list"
 
 Get failed job list.
   For example:
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/failed"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/list/failed"
 
 Get killed job list.
   For example:
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/killed"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/list/killed"
 
 Get prep job list.
   For example:
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/prep"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/list/prep"
 
 Get running job list.
   For example:
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/running"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/list/running"
 
 Get succeeded job list.
   For example:
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/list/succeeded"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/list/succeeded"
 
 Get job status.
   {JOBID} specifies the jobid.
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/status/{JOBID}"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/status/{JOBID}"
 
   For example:
-  ~ $ curl -X GET "http://<HOOPHOSTNAME>:9010/job/status/job_201205111223_0001"
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/status/job_201205111223_0001"
 
 Kill job for ID.
   {JOBID} specifies the job ID.
-  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/id/{JOBID}"
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/id/{JOBID}"
 
   For example:
-  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/id/job_201205111223_0001"
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/id/job_201205111223_0001"
 
 Kill job for job name.
   {JOBNAME} specifies the job name.
-  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/name/{JOBNAME}"
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/name/{JOBNAME}"
 
   For example:
-  ~ $ curl -X DELETE "http://<HOOPHOSTNAME>:9010/job/kill/name/WORD_COUNT_JOB"
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/name/WORD_COUNT_JOB"
