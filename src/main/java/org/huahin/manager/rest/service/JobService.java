@@ -289,7 +289,6 @@ public class JobService extends Service {
      * @return JSON map
      * @throws IOException
      */
-    @SuppressWarnings("static-access")
     private Map<String, Object> getJob(JobClient jobClient, JobStatus jobStatus) throws IOException {
         RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
         Map<String, Object> m = new HashMap<String, Object>();
@@ -299,7 +298,7 @@ public class JobService extends Service {
         startTime.setTimeInMillis(jobStatus.getStartTime());
         m.put(Response.START_TIME, startTime.getTime().toString());
         m.put(Response.NAME, runningJob.getJobName());
-        m.put(Response.STATE, jobStatus.getJobRunState(jobStatus.getRunState()));
+        m.put(Response.STATE, JobStatus.getJobRunState(jobStatus.getRunState()));
         m.put(Response.MAP_COMPLETE, jobStatus.mapProgress() * 100 + "%");
         m.put(Response.REDUCE_COMPLETE, jobStatus.reduceProgress() * 100 + "%");
         m.put(Response.SCHEDULEING_INFO, jobStatus.getSchedulingInfo());
