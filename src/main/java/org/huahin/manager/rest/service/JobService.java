@@ -133,8 +133,6 @@ public class JobService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONObject status(@PathParam(JOBID) String jobId) throws JSONException {
-        Map<String, Object> job = null;
-
         JSONObject jsonObject = null;
         try {
             JobClient jobClient = new JobClient(getJobConf());
@@ -142,7 +140,7 @@ public class JobService extends Service {
             JobStatus[] jobStatuses = jobClient.getAllJobs();
             for (JobStatus jobStatus : jobStatuses) {
                 if (jobStatus.getJobID().toString().equals(jobId)) {
-                    job = getJob(jobClient, jobStatus);
+                    Map<String, Object> job = getJob(jobClient, jobStatus);
                     RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
 
                     Map<String, Map<String, Long>> groups = new HashMap<String, Map<String,Long>>();
