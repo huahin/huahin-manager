@@ -22,7 +22,7 @@
 
   <groupId>org.huahin</groupId>
   <artifactId>huahin-manager</artifactId>
-  <version>0.1</version>
+  <version>0.1.1</version>
   <packaging>jar</packaging>
 
   <name>huahin-manager</name>
@@ -100,6 +100,9 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <version>2.2.2</version>
         <configuration>
+          <finalName>huahin-manager-${project.version}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <attach>false</attach>
           <descriptor>src/main/assembly/distribution.xml</descriptor>
         </configuration>
       </plugin>

@@ -276,7 +276,10 @@ public class JobService extends Service {
         JobStatus[] jobStatuses = jobClient.getAllJobs();
         for (JobStatus jobStatus : jobStatuses) {
             if (state == ALL || state == jobStatus.getRunState()) {
-                l.add(new JSONObject(getJob(jobClient, jobStatus)));
+                Map<String, Object> m = getJob(jobClient, jobStatus);
+                if (m != null) {
+                    l.add(new JSONObject(m));
+                }
             }
         }
 
@@ -291,6 +294,9 @@ public class JobService extends Service {
      */
     private Map<String, Object> getJob(JobClient jobClient, JobStatus jobStatus) throws IOException {
         RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
+        if (runningJob == null) {
+            return null;
+        }
         Map<String, Object> m = new HashMap<String, Object>();
         m.put(Response.JOBID, jobStatus.getJobID().toString());
         m.put(Response.PRIORITY, jobStatus.getJobPriority().name());
