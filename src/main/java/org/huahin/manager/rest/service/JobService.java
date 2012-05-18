@@ -142,6 +142,9 @@ public class JobService extends Service {
                 if (jobStatus.getJobID().toString().equals(jobId)) {
                     Map<String, Object> job = getJob(jobClient, jobStatus);
                     RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
+                    if (runningJob == null) {
+                        break;
+                    }
 
                     Map<String, Map<String, Long>> groups = new HashMap<String, Map<String,Long>>();
                     for (String s : runningJob.getCounters().getGroupNames()) {
@@ -169,6 +172,12 @@ public class JobService extends Service {
             jsonObject = new JSONObject(status);
         }
 
+        if (jsonObject == null) {
+            Map<String, String> status = new HashMap<String, String>();
+            status.put(Response.STATUS, "Could not find job " + jobId);
+            jsonObject = new JSONObject(status);
+        }
+
         return jsonObject;
     }
 
@@ -187,12 +196,15 @@ public class JobService extends Service {
             for (JobStatus jobStatus : jobStatuses) {
                 if (jobStatus.getJobID().toString().equals(jobId)) {
                     RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
+                    if (runningJob == null) {
+                        break;
+                    }
+
                     runningJob.killJob();
                     status.put(Response.STATUS, "Killed job " + jobId);
                     break;
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
             log.error(e);
@@ -216,17 +228,19 @@ public class JobService extends Service {
         Map<String, String> status = new HashMap<String, String>();
         try {
             JobClient jobClient = new JobClient(getJobConf());
-
             JobStatus[] jobStatuses = jobClient.getAllJobs();
             for (JobStatus jobStatus : jobStatuses) {
                 RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
+                if (runningJob == null) {
+                    break;
+                }
+
                 if (runningJob.getJobName().equals(jobName)) {
                     runningJob.killJob();
                     status.put(Response.STATUS, "Killed job " + jobName);
                     break;
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
             log.error(e);
