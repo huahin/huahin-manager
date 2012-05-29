@@ -87,6 +87,13 @@ Get job status.
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/job/status/job_201205111223_0001"
 
+Get job detail.
+  {JOBID} specifies the jobid.
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/detail/{JOBID}"
+
+  For example:
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/job/detail/job_201205111223_0001"
+
 Kill job for ID.
   {JOBID} specifies the job ID.
   ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/id/{JOBID}"
