@@ -34,4 +34,8 @@ public class Response {
     public static final String SCHEDULEING_INFO = "schedulingInfo";
 
     public static final String GROUPS = "groups";
+
+    public static final String JOB_FILE = "jobFile";
+    public static final String TRACKING_URL = "trackingURL";
+    public static final String CONFIGURATION = "configuration";
 }

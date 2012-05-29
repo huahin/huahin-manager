@@ -38,6 +38,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.Counters.Counter;
 import org.apache.hadoop.mapred.Counters.Group;
 import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
 import org.huahin.manager.response.Response;
@@ -135,36 +136,55 @@ public class JobService extends Service {
     public JSONObject status(@PathParam(JOBID) String jobId) throws JSONException {
         JSONObject jsonObject = null;
         try {
-            JobClient jobClient = new JobClient(getJobConf());
-
-            JobStatus[] jobStatuses = jobClient.getAllJobs();
-            for (JobStatus jobStatus : jobStatuses) {
-                if (jobStatus.getJobID().toString().equals(jobId)) {
-                    Map<String, Object> job = getJob(jobClient, jobStatus);
-                    RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
-                    if (runningJob == null) {
-                        break;
-                    }
-
-                    Map<String, Map<String, Long>> groups = new HashMap<String, Map<String,Long>>();
-                    for (String s : runningJob.getCounters().getGroupNames()) {
-                        Group group = runningJob.getCounters().getGroup(s);
-                        Iterator<Counter> ite = group.iterator();
-
-                        Map<String, Long> counters = new HashMap<String, Long>();
-                        groups.put(group.getDisplayName(), counters);
-                        while (ite.hasNext()) {
-                            Counter counter = (Counter) ite.next();
-                            counters.put(counter.getDisplayName(), counter.getValue());
-                        }
-                    }
-
-                    job.put(Response.GROUPS, groups);
-                    jsonObject = new JSONObject(job);
-                    break;
-                }
+            Map<String, Object> job = getStatus(jobId);
+            if (job != null) {
+                jsonObject = new JSONObject(job);
             }
         } catch (IOException e) {
+            e.printStackTrace();
+            log.error(e);
+            Map<String, String> status = new HashMap<String, String>();
+            status.put(Response.STATUS, e.getMessage());
+            jsonObject = new JSONObject(status);
+        }
+
+        if (jsonObject == null) {
+            Map<String, String> status = new HashMap<String, String>();
+            status.put(Response.STATUS, "Could not find job " + jobId);
+            jsonObject = new JSONObject(status);
+        }
+
+        return jsonObject;
+    }
+
+    @Path("/detail/{" + JOBID + "}")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public JSONObject detail(@PathParam(JOBID) String jobId) throws JSONException {
+        JSONObject jsonObject = null;
+        try {
+            final Map<String, Object> job = getStatus(jobId);
+            if (job != null) {
+                JobClient jobClient = new JobClient(getJobConf());
+                RunningJob runningJob = jobClient.getJob(JobID.forName(jobId));
+                if (runningJob != null) {
+                    job.put(Response.JOB_FILE, runningJob.getJobFile());
+                    String trackingURL = runningJob.getTrackingURL();
+                    job.put(Response.TRACKING_URL, trackingURL);
+
+                    Map<String, String> jobDetail = getJobDetail(trackingURL);
+                    if (jobDetail != null) {
+                        job.putAll(jobDetail);
+                    }
+
+                    Map<String, String> jobConf = getJobConfiguration(trackingURL, jobId);
+                    if (jobConf != null) {
+                        job.put(Response.CONFIGURATION, jobConf);
+                    }
+                }
+                jsonObject = new JSONObject(job);
+            }
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e);
             Map<String, String> status = new HashMap<String, String>();
@@ -252,6 +272,46 @@ public class JobService extends Service {
         }
 
         return new JSONObject(status);
+    }
+
+    /**
+     * @param jobId
+     * @return {@link JSONObject}
+     * @throws IOException
+     */
+    private Map<String, Object> getStatus(String jobId) throws IOException {
+        Map<String, Object> job = null;
+
+        JobClient jobClient = new JobClient(getJobConf());
+
+        JobStatus[] jobStatuses = jobClient.getAllJobs();
+        for (JobStatus jobStatus : jobStatuses) {
+            if (jobStatus.getJobID().toString().equals(jobId)) {
+                job = getJob(jobClient, jobStatus);
+                RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
+                if (runningJob == null) {
+                    break;
+                }
+
+                Map<String, Map<String, Long>> groups = new HashMap<String, Map<String,Long>>();
+                for (String s : runningJob.getCounters().getGroupNames()) {
+                    Group group = runningJob.getCounters().getGroup(s);
+                    Iterator<Counter> ite = group.iterator();
+
+                    Map<String, Long> counters = new HashMap<String, Long>();
+                    groups.put(group.getDisplayName(), counters);
+                    while (ite.hasNext()) {
+                        Counter counter = (Counter) ite.next();
+                        counters.put(counter.getDisplayName(), counter.getValue());
+                    }
+                }
+
+                job.put(Response.GROUPS, groups);
+                break;
+            }
+        }
+
+        return job;
     }
 
     /**
