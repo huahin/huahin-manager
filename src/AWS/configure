@@ -23,9 +23,9 @@ then
   exit 0
 fi
 
-wget https://s3.amazonaws.com/huahin/manager/huahin-manager-0.1.3.tar.gz
+wget https://s3.amazonaws.com/huahin/manager/huahin-manager-a-0.1.3.tar.gz
 mkdir -p /home/hadoop/huahin-manager
-tar -C /home/hadoop/huahin-manager -xzf huahin-manager-0.1.3.tar.gz
+tar -C /home/hadoop/huahin-manager -xzf huahin-manager-a-0.1.3.tar.gz
 
 HOST=`hostname`
 JOBTRACKER=$HOST:9001
