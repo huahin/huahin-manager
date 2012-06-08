@@ -17,17 +17,24 @@
  */
 package org.huahin.manager.rest.service;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -41,7 +48,13 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobID;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
+import org.apache.wink.common.internal.utils.MediaTypeUtils;
+import org.apache.wink.common.model.multipart.InMultiPart;
+import org.apache.wink.common.model.multipart.InPart;
+import org.huahin.manager.queue.Queue;
+import org.huahin.manager.queue.QueueUtils;
 import org.huahin.manager.response.Response;
+import org.huahin.manager.util.JobUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,22 +66,30 @@ import org.json.JSONObject;
 public class JobService extends Service {
     private static final Log log = LogFactory.getLog(JobService.class);
 
-    private static final int ALL = -999;
-
     private static final String JOBID = "JobID";
     private static final String JOBNAME = "JobName";
 
-    private Calendar startTime = Calendar.getInstance();
+    private static final String CONTENT_DISPOSITION = "Content-Disposition";
+    private static final String FORM_DATA_NAME_JAR = "form-data; name=\"JAR\"";
+    private static final String FORM_DATA_NAME_ARGUMENTS = "form-data; name=\"ARGUMENTS\"";
+
+    private static final String JSON_CLASS = "class";
+    private static final String JSON_ARGUMENTS = "arguments";
+
+    private static final int JAR = 1;
+    private static final int ARGUMENTS = 2;
+
+    private static final Pattern fileNamePattern = Pattern.compile("^form-data; name=\"JAR\"; filename=\"(.*)\"$");
 
     /**
-     * @return job {@link ResponseJobs}
+     * @return job {@link JSONArray}
      * @throws JSONException
      */
     @Path("/list")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONArray list() throws JSONException {
-        return getJobs(ALL);
+        return JobUtils.getJobs(JobUtils.ALL, getJobConf());
     }
 
     /**
@@ -79,7 +100,7 @@ public class JobService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONArray listFailed() throws JSONException {
-        return getJobs(JobStatus.FAILED);
+        return JobUtils.getJobs(JobStatus.FAILED, getJobConf());
     }
 
     /**
@@ -90,7 +111,7 @@ public class JobService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONArray listKilled() throws JSONException {
-        return getJobs(JobStatus.KILLED);
+        return JobUtils.getJobs(JobStatus.KILLED, getJobConf());
     }
 
     /**
@@ -101,7 +122,7 @@ public class JobService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONArray listPrep() throws JSONException {
-        return getJobs(JobStatus.PREP);
+        return JobUtils.getJobs(JobStatus.PREP, getJobConf());
     }
 
     /**
@@ -112,7 +133,7 @@ public class JobService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONArray listRunning() throws JSONException {
-        return getJobs(JobStatus.RUNNING);
+        return JobUtils.getJobs(JobStatus.RUNNING, getJobConf());
     }
 
     /**
@@ -123,7 +144,7 @@ public class JobService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONArray listSucceeded() throws JSONException {
-        return getJobs(JobStatus.SUCCEEDED);
+        return JobUtils.getJobs(JobStatus.SUCCEEDED, getJobConf());
     }
 
     /**
@@ -157,6 +178,11 @@ public class JobService extends Service {
         return jsonObject;
     }
 
+    /**
+     * @param jobId
+     * @return {@link JSONObject}
+     * @throws JSONException
+     */
     @Path("/detail/{" + JOBID + "}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -172,12 +198,12 @@ public class JobService extends Service {
                     String trackingURL = runningJob.getTrackingURL();
                     job.put(Response.TRACKING_URL, trackingURL);
 
-                    Map<String, String> jobDetail = getJobDetail(trackingURL);
+                    Map<String, String> jobDetail = JobUtils.getJobDetail(trackingURL);
                     if (jobDetail != null) {
                         job.putAll(jobDetail);
                     }
 
-                    Map<String, String> jobConf = getJobConfiguration(trackingURL, jobId);
+                    Map<String, String> jobConf = JobUtils.getJobConfiguration(trackingURL, jobId);
                     if (jobConf != null) {
                         job.put(Response.CONFIGURATION, jobConf);
                     }
@@ -199,6 +225,118 @@ public class JobService extends Service {
         }
 
         return jsonObject;
+    }
+
+    /**
+     * @param inMP
+     * @return {@link JSONObject}
+     */
+    @Path("/register")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaTypeUtils.MULTIPART_FORM_DATA)
+    public JSONObject registerJob(InMultiPart inMP) {
+        Map<String, String> status = new HashMap<String, String>();
+        status.put(Response.STATUS, "accepted");
+
+        try {
+            Queue queue = new Queue();
+            synchronized (queue) {
+                queue.setDate(new Date());
+            }
+
+            boolean jarFound = false;
+            boolean argFound = false;
+            File jarFile = File.createTempFile("huahin", ".jar", new File(getJarPath()));
+            while (inMP.hasNext()) {
+                InPart part = inMP.next();
+
+                int type = 0;
+                for (String s : part.getHeaders().get(CONTENT_DISPOSITION)) {
+                    if (s.startsWith(FORM_DATA_NAME_JAR)) {
+                        Matcher matcher = fileNamePattern.matcher(s);
+                        if (matcher.matches() && matcher.groupCount() == 1) {
+                            queue.setJarFileName(matcher.group(1));
+                        }
+                        type = JAR;
+                        jarFound = true;
+                        break;
+                    } else if (s.startsWith(FORM_DATA_NAME_ARGUMENTS)) {
+                        type = ARGUMENTS;
+                        argFound = true;
+                        break;
+                    }
+                }
+
+                InputStream in = part.getInputStream();
+                switch (type) {
+                case JAR:
+                    createJar(in, jarFile);
+                    queue.setJar(jarFile.getPath());
+                    break;
+                case ARGUMENTS:
+                    JSONObject argument = createJSON(in);
+                    queue.setClazz(argument.getString(JSON_CLASS));
+
+                    JSONArray array = argument.getJSONArray(JSON_ARGUMENTS);
+                    String[] arguments = new String[array.length()];
+                    for (int i = 0; i < array.length(); i++) {
+                        arguments[i] = array.getString(i);
+                    }
+                    queue.setArguments(arguments);
+                    break;
+                }
+            }
+
+            if (!jarFound || !argFound) {
+                jarFile.delete();
+                status.put(Response.STATUS, "arguments error");
+                return new JSONObject(status);
+            }
+
+            QueueUtils.registerQueue(getQueuePath(), queue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e);
+            status.put(Response.STATUS, e.getMessage());
+        }
+
+        return new JSONObject(status);
+    }
+
+    /**
+     * @param in
+     * @param jarFile
+     * @throws IOException
+     */
+    private void createJar(InputStream in, File jarFile) throws IOException {
+        OutputStream out = new FileOutputStream(jarFile);
+
+        byte[] buf = new byte[1024];
+        int len = 0;
+        while ((len = in.read(buf)) > 0) {
+            out.write(buf, 0, len);
+        }
+        out.close();
+    }
+
+    /**
+     * @param in
+     * @return {@link JSONObject}
+     * @throws IOException
+     * @throws JSONException
+     */
+    private JSONObject createJSON(InputStream in)
+            throws IOException, JSONException {
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String str;
+        while ((str = reader.readLine()) != null) {
+            sb.append(str);
+        }
+
+        return new JSONObject(sb.toString());
     }
 
     /**
@@ -287,7 +425,7 @@ public class JobService extends Service {
         JobStatus[] jobStatuses = jobClient.getAllJobs();
         for (JobStatus jobStatus : jobStatuses) {
             if (jobStatus.getJobID().toString().equals(jobId)) {
-                job = getJob(jobClient, jobStatus);
+                job = JobUtils.getJob(jobClient, jobStatus);
                 RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
                 if (runningJob == null) {
                     break;
@@ -312,74 +450,5 @@ public class JobService extends Service {
         }
 
         return job;
-    }
-
-    /**
-     * @param state
-     * @return {@link JSONArray}
-     * @throws JSONException
-     */
-    @SuppressWarnings("unchecked")
-    private JSONArray getJobs(int state) throws JSONException {
-        JSONArray jsonArray = null;
-        try {
-            jsonArray = new JSONArray(listJob(state));
-        } catch (IOException e) {
-            e.printStackTrace();
-            log.error(e);
-            Map<String, String> status = new HashMap<String, String>();
-            status.put(Response.STATUS, e.getMessage());
-            jsonArray = new JSONArray(Arrays.asList(status));
-        }
-
-        return jsonArray;
-    }
-
-    /**
-     * @param state
-     * @return {@link List} of {@link JSONObject}
-     * @throws IOException
-     */
-    private List<JSONObject> listJob(int state) throws IOException {
-        List<JSONObject> l = new ArrayList<JSONObject>();
-
-        JobClient jobClient = new JobClient(getJobConf());
-
-        JobStatus[] jobStatuses = jobClient.getAllJobs();
-        for (JobStatus jobStatus : jobStatuses) {
-            if (state == ALL || state == jobStatus.getRunState()) {
-                Map<String, Object> m = getJob(jobClient, jobStatus);
-                if (m != null) {
-                    l.add(new JSONObject(m));
-                }
-            }
-        }
-
-        return l;
-    }
-
-    /**
-     * @param jobClient
-     * @param jobStatus
-     * @return JSON map
-     * @throws IOException
-     */
-    private Map<String, Object> getJob(JobClient jobClient, JobStatus jobStatus) throws IOException {
-        RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
-        if (runningJob == null) {
-            return null;
-        }
-        Map<String, Object> m = new HashMap<String, Object>();
-        m.put(Response.JOBID, jobStatus.getJobID().toString());
-        m.put(Response.PRIORITY, jobStatus.getJobPriority().name());
-        m.put(Response.USER, jobStatus.getUsername());
-        startTime.setTimeInMillis(jobStatus.getStartTime());
-        m.put(Response.START_TIME, startTime.getTime().toString());
-        m.put(Response.NAME, runningJob.getJobName());
-        m.put(Response.STATE, JobStatus.getJobRunState(jobStatus.getRunState()));
-        m.put(Response.MAP_COMPLETE, jobStatus.mapProgress() * 100 + "%");
-        m.put(Response.REDUCE_COMPLETE, jobStatus.reduceProgress() * 100 + "%");
-        m.put(Response.SCHEDULEING_INFO, jobStatus.getSchedulingInfo());
-        return m;
     }
 }

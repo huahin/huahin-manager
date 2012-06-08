@@ -29,6 +29,21 @@
       <includes>
         <include></include>
       </includes>
+      <fileMode>0644</fileMode>
+    </fileSet>
+    <fileSet>
+      <outputDirectory>/queue/queue</outputDirectory>
+      <includes>
+        <include></include>
+      </includes>
+      <fileMode>0644</fileMode>
+    </fileSet>
+    <fileSet>
+      <outputDirectory>/queue/jar</outputDirectory>
+      <includes>
+        <include></include>
+      </includes>
+      <fileMode>0644</fileMode>
     </fileSet>
     <fileSet>
       <directory>target</directory>
