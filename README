@@ -115,8 +115,8 @@ Kill job for ID.
   ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/id/job_201205111223_0001"
 
 Kill job for job name.
-  {JOBNAME} specifies the job name.
-  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/name/{JOBNAME}"
+  <JOBNAME> specifies the job name.
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/name/<JOBNAME>"
 
   For example:
   ~ $ curl -X DELETE "http://<HOSTNAME>:9010/job/kill/name/WORD_COUNT_JOB"
@@ -128,7 +128,7 @@ Get all queue list.
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/queue/list"
 
-Get all queue statuses.
+Get run queue statuses.
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/queue/statuses"
 
