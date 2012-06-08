@@ -2,12 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
-
-  <bean id="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="location"
-              value="file:${huahin.home}/conf/huahinManager.properties"/>
-  </bean>
-
+  <import resource="huahinManagerProperties.xml" />
   <import resource="huahinManagerContext-rest.xml" />
 
   <bean class="org.apache.wink.spring.Registrar">
@@ -17,6 +12,7 @@
     <property name="instances">
       <set>
         <ref bean="jobService" />
+        <ref bean="queueService" />
       </set>
     </property>
   </bean>

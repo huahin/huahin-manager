@@ -17,12 +17,18 @@
  */
 package org.huahin.manager;
 
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.RunnableFuture;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.huahin.manager.queue.QueueManager;
 import org.mortbay.jetty.Connector;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 import org.mortbay.jetty.webapp.WebAppContext;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  *
@@ -55,24 +61,37 @@ public class Runner {
     public void start(String war, int port) {
         log.info("huahin-manager start");
 
-        SelectChannelConnector connector = new SelectChannelConnector();
-        connector.setPort(port);
-
-        Server server = new Server();
-        server.setConnectors(new Connector[] { connector });
-
-        WebAppContext web = new WebAppContext();
-        web.setContextPath("/");
-        web.setWar(war);
-
-        server.addHandler(web);
-
+        ConfigurableApplicationContext applicationContext = null;
         try {
+            applicationContext
+                = new ClassPathXmlApplicationContext("huahinManagerProperties.xml");
+            Properties properties = (Properties) applicationContext.getBean("properties");
+
+            QueueManager queueManager = new QueueManager(properties);
+            RunnableFuture<Void> queueManagerThread = new FutureTask<Void>(queueManager);
+            new Thread(queueManagerThread).start();
+
+            SelectChannelConnector connector = new SelectChannelConnector();
+            connector.setPort(port);
+
+            Server server = new Server();
+            server.setConnectors(new Connector[] { connector });
+
+            WebAppContext web = new WebAppContext();
+            web.setContextPath("/");
+            web.setWar(war);
+
+            server.addHandler(web);
             server.start();
             server.join();
+            queueManagerThread.get();
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e);
+            log.error("huahin-manager aborted", e);
+            System.exit(-1);
+        } finally {
+            if (applicationContext != null) {
+                applicationContext.close();
+            }
         }
 
         log.info("huahin-manager end");

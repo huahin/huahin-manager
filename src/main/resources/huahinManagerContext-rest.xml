@@ -3,7 +3,13 @@
 
 <beans>
   <bean id="jobService" class="org.huahin.manager.rest.service.JobService">
-    <property name="mapredJobTracker"
-              value="${mapred.job.tracker}"/>
+    <property name="properties">
+      <ref bean="properties" />
+    </property>
+  </bean>
+  <bean id="queueService" class="org.huahin.manager.rest.service.QueueService">
+    <property name="properties">
+      <ref bean="properties" />
+    </property>
   </bean>
 </beans>
