@@ -128,11 +128,14 @@ Get all queue list.
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/queue/list"
 
-Get all queue statuses.
+Get run queue statuses.
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/queue/statuses"
 
 Kill queue for ID.
   <QUEUEID> specifies the queue ID.
   ~ $ curl -X DELETE "http://<HOSTNAME>:9010/queue/kill/<QUEUEID>"
+
+  For example:
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/queue/kill/Q_20120608180129594"
 
