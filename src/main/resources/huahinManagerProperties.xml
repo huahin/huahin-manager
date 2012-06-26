@@ -7,7 +7,7 @@
               value="file:${huahin.home}/conf/huahinManager.properties"/>
   </bean>
 
-  <bean id="properties" class="org.huahin.manager.Properties">
+  <bean id="properties" class="org.huahinframework.manager.Properties">
     <property name="mapredJobTracker"
               value="${mapred.job.tracker}"/>
     <property name="fsDefaultName"

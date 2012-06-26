@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.huahin.manager.util;
+package org.huahinframework.manager.util;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -45,8 +45,8 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
-import org.huahin.manager.Properties;
-import org.huahin.manager.response.Response;
+import org.huahinframework.manager.Properties;
+import org.huahinframework.manager.response.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

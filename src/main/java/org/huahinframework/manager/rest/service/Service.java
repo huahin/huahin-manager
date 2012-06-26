@@ -15,12 +15,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.huahin.manager.rest.service;
+package org.huahinframework.manager.rest.service;
 
 import org.apache.hadoop.mapred.JobConf;
-import org.huahin.manager.Properties;
-import org.huahin.manager.queue.QueueUtils;
-import org.huahin.manager.util.JobUtils;
+import org.huahinframework.manager.Properties;
+import org.huahinframework.manager.queue.QueueUtils;
+import org.huahinframework.manager.util.JobUtils;
 
 /**
  *

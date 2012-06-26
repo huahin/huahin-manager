@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.huahin.manager.rest.service;
+package org.huahinframework.manager.rest.service;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,9 +33,9 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.huahin.manager.queue.Queue;
-import org.huahin.manager.queue.QueueUtils;
-import org.huahin.manager.response.Response;
+import org.huahinframework.manager.queue.Queue;
+import org.huahinframework.manager.queue.QueueUtils;
+import org.huahinframework.manager.response.Response;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

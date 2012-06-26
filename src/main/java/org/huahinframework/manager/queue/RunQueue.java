@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.huahin.manager.queue;
+package org.huahinframework.manager.queue;
 
 import java.io.File;
 import java.net.URL;

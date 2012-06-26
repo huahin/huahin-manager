@@ -2,12 +2,12 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-  <bean id="jobService" class="org.huahin.manager.rest.service.JobService">
+  <bean id="jobService" class="org.huahinframework.manager.rest.service.JobService">
     <property name="properties">
       <ref bean="properties" />
     </property>
   </bean>
-  <bean id="queueService" class="org.huahin.manager.rest.service.QueueService">
+  <bean id="queueService" class="org.huahinframework.manager.rest.service.QueueService">
     <property name="properties">
       <ref bean="properties" />
     </property>

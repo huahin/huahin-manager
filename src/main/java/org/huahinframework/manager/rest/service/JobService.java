@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.huahin.manager.rest.service;
+package org.huahinframework.manager.rest.service;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,10 +51,10 @@ import org.apache.hadoop.mapred.RunningJob;
 import org.apache.wink.common.internal.utils.MediaTypeUtils;
 import org.apache.wink.common.model.multipart.InMultiPart;
 import org.apache.wink.common.model.multipart.InPart;
-import org.huahin.manager.queue.Queue;
-import org.huahin.manager.queue.QueueUtils;
-import org.huahin.manager.response.Response;
-import org.huahin.manager.util.JobUtils;
+import org.huahinframework.manager.queue.Queue;
+import org.huahinframework.manager.queue.QueueUtils;
+import org.huahinframework.manager.response.Response;
+import org.huahinframework.manager.util.JobUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

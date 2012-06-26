@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.huahin.manager.queue;
+package org.huahinframework.manager.queue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +27,8 @@ import java.util.concurrent.RunnableFuture;
 
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobStatus;
-import org.huahin.manager.Properties;
-import org.huahin.manager.util.JobUtils;
+import org.huahinframework.manager.Properties;
+import org.huahinframework.manager.util.JobUtils;
 
 /**
  *

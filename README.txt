@@ -8,7 +8,7 @@ Huahin Manager is distributed under Apache License 2.0.
 
 -----------------------------------------------------------------------------
 Documentation
-  http://huahin.github.com/huahin-manager/
+  http://huahinframework.org/huahin-manager/
 
 -----------------------------------------------------------------------------
 Requirements
