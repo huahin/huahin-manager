@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Huahin Manager : Simple Management System for Hadoop MapReduce Job." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Huahin Manager</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/huahin/huahin-manager">View on GitHub</a>
+
+          <h1 id="project_title">Huahin Manager</h1>
+          <h2 id="project_tagline">Simple Management System for Hadoop MapReduce Job.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/huahin/huahin-manager/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/huahin/huahin-manager/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>Huahin Manager</h2>
+
+<p>Huahin Manager is Simple Management System for Hadoop MapReduce Job.
+Huahin can get a list of MapReduce jobs, get status, do a kill for the job, and Job queue management.</p>
+
+<p>Huahin Manager is distributed under Apache License 2.0.</p>
+
+<h3>Download</h3>
+
+<p><a href="https://github.com/downloads/huahin/huahin-manager/huahin-manager-a-0.1.3.tar.gz">Huahin Manager 0.1.3 for Apache Hadoop 1.0.3</a>
+<br><a href="https://github.com/downloads/huahin/huahin-manager/huahin-manager-c-0.1.3.tar.gz">Huahin Manager 0.1.3 for CDH3u4</a>
+<br></p>
+
+<h3>Requirements</h3>
+
+<pre><code>Java 6+
+</code></pre>
+
+<p><br></p>
+
+<h3>Install Huahin Manager</h3>
+
+<pre><code>~ $ tar xzf huahin-manager-x.x.x.tar.gz
+</code></pre>
+
+<p><br></p>
+
+<h3>Configure Huahin Manager</h3>
+
+<p>Edit the huahin-manager-x.x.x/conf/huahinManager.properties file and set mapred.job.tracker property to the JobTracker URI,
+set fs.default.name property to the NameNode URI, and set job.queue.limit property to the job queue limit.
+job queue limit is 0, does not manage the queue.
+For example:</p>
+
+<pre><code>mapred.job.tracker=localhost:9001
+fs.default.name=hdfs://localhost:9000
+job.queue.limit=2
+</code></pre>
+
+<p>When you change the boot port, edit the huahin-manager-x.x.x/conf/port file.
+<br></p>
+
+<h3>Start/Stop Huahin Manager</h3>
+
+<p>To start/stop Huahin Manager use Huahin Manager's bin/manager script. For example:</p>
+
+<pre><code>$ bin/manager start
+</code></pre>
+
+<p><br></p>
+
+<h3>Test Huahin Manager is working</h3>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/list"
+[
+  {
+    "jobid": "job_201205111223_0001",
+    "mapComplete": "100.0%",
+    "name": "JOB_EBCF7626A41F34B4C7276DB2B152336F",
+    "priority": "NORMAL",
+    "reduceComplete": "100.0%",
+    "schedulingInfo": "NA",
+    "startTime": "Fri May 11 12:25:18 JST 2012",
+    "state": "SUCCEEDED",
+    "user": "huahin"
+  }
+]
+</code></pre>
+
+<p><br></p>
+
+<h3>Huahin Manager on the Amazon Elastic MapReduce</h3>
+
+<p>Huahin Manager will be able to run on Amazon Elastic MapReduce by setting the bootstrap.</p>
+
+<h5>Setup of Security Group</h5>
+
+<p>Set the your IP address and port(9010) for the Huahin Manager to the Security Group(ElasticMapReduce-master).
+For example:</p>
+
+<ul>
+<li>Port range: 9010</li>
+<li>Source: 1.1.1.1/32</li>
+</ul><h5>Starting The Amazon Elastic MapReduce.</h5>
+
+<p>References bootstrap is as follows:</p>
+
+<pre><code>s3://huahin/manager/configure
+</code></pre>
+
+<p>The following is an example run using Ruby Client(elastic-mapreduce).</p>
+
+<pre><code>~ $ elastic-mapreduce --create --alive \
+--master-instance-type m1.large --slave-instance-type m1.small \
+--num-instances 2 \
+--bootstrap-action s3://huahin/manager/configure
+</code></pre>
+
+<p>After checking the Public DNS Name for the Master Node, you can use the API of the Huahin Manager.</p>
+
+<pre><code>~ $ elastic-mapreduce --describe --jobflow j-XXXXXXXXX
+{
+  "JobFlows": [
+    {
+      ...
+      "Instances": {
+        ...
+        "MasterPublicDnsName": "ec2-1-2-3-4.compute-1.amazonaws.com",
+        ...
+      }
+    }
+  ]
+}
+~ $ curl -X GET "http://ec2-1-2-3-4.compute-1.amazonaws.com:9010/job/list"
+</code></pre>
+
+<p><br></p>
+
+<h3>Huahin Manager REST Job APIs</h3>
+
+<p>Get all job list. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/list"
+</code></pre>
+
+<p><br></p>
+
+<p>Get failed job list. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/list/failed"
+</code></pre>
+
+<p><br></p>
+
+<p>Get killed job list. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/list/killed"
+</code></pre>
+
+<p><br></p>
+
+<p>Get prep job list. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/list/prep"
+</code></pre>
+
+<p><br></p>
+
+<p>Get running job list. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/list/running"
+</code></pre>
+
+<p><br></p>
+
+<p>Get succeeded job list. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/list/succeeded"
+</code></pre>
+
+<p><br></p>
+
+<p>Get job status.  specifies the jobid.</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/status/&lt;JOBID&gt;"
+</code></pre>
+
+<p>For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/status/job_201205111223_0001"
+</code></pre>
+
+<p><br></p>
+
+<p>Get job detail.  specifies the jobid.</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/detail/&lt;JOBID&gt;"
+</code></pre>
+
+<p>For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/job/detail/job_201205111223_0001"
+</code></pre>
+
+<p><br></p>
+
+<p>Register job.
+JAR=@ specifies the run jar file.
+ARGUMENTS specifies the JSON.  specifies the run class. arguments: specifies the run arguments array.</p>
+
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/register -F JAR=@&lt;JAR_FILE&gt; -F ARGUMENTS='{"class":"&lt;CLASS&gt;","arguments":["&lt;ARGS&gt;","&lt;ARGS&gt;"]}'
+</code></pre>
+
+<p>For example:</p>
+
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/register -F JAR=@mapreduce.jar -F ARGUMENTS='{"class":"examples.WordCount","arguments":["/user/huahin/input","/user/huahin/output"]}'
+</code></pre>
+
+<p><br></p>
+
+<p>Kill job for ID.  specifies the job ID.</p>
+
+<pre><code>~ $ curl -X DELETE "http://&lt;HOSTNAME&gt;:9010/job/kill/id/&lt;JOBID&gt;"
+</code></pre>
+
+<p>For example:</p>
+
+<pre><code>~ $ curl -X DELETE "http://&lt;HOSTNAME&gt;:9010/job/kill/id/job_201205111223_0001"
+</code></pre>
+
+<p><br></p>
+
+<p>Kill job for job name.  specifies the job name.</p>
+
+<pre><code>~ $ curl -X DELETE "http://&lt;HOSTNAME&gt;:9010/job/kill/name/&lt;JOBNAME&gt;"
+</code></pre>
+
+<p>For example:</p>
+
+<pre><code>~ $ curl -X DELETE "http://&lt;HOSTNAME&gt;:9010/job/kill/name/WORD_COUNT_JOB"
+</code></pre>
+
+<p><br></p>
+
+<h3>Huahin Manager REST queue APIs</h3>
+
+<p>Get all queue list. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/queue/list"
+</code></pre>
+
+<p><br></p>
+
+<p>Get run queue statuses. For example:</p>
+
+<pre><code>~ $ curl -X GET "http://&lt;HOSTNAME&gt;:9010/queue/statuses"
+</code></pre>
+
+<p><br></p>
+
+<p>Kill queue for ID.  specifies the queue ID.</p>
+
+<pre><code>~ $ curl -X DELETE "http://&lt;HOSTNAME&gt;:9010/queue/kill/&lt;QUEUEID&gt;"
+</code></pre>
+
+<p>For example:</p>
+
+<pre><code>~ $ curl -X DELETE "http://&lt;HOSTNAME&gt;:9010/queue/kill/Q_20120608180129594"
+</code></pre>
+
+<p><br></p>
+
+<h3>Support or Contact</h3>
+
+<p>Contact <a href="mailto:huahin-framework@googlegroups.com">huahin-framework@googlegroups.com</a> and we’ll help you sort it out.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Huahin Manager maintained by <a href="https://github.com/huahin">huahin</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-32923864-1");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+
+  </body>
+</html>
