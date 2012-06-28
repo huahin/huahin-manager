@@ -34,6 +34,44 @@
     </license>
   </licenses>
 
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <scm>
+    <url>http://github.com/huahin/huahin-manager</url>
+    <connection>scm:git:git@github.com:huahin/huahin-manager.git</connection>
+    <developerConnection>scm:git:git@github.com:huahin/huahin-manager.git</developerConnection>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>ryu</id>
+      <name>Ryu Kobayashi</name>
+      <email>beter.max@gmail.com</email>
+      <url>http://beter-max.blogspot.com/</url>
+      <roles>
+        <role>lead</role>
+        <role>architect</role>
+        <role>developer</role>
+      </roles>
+      <timezone>+9</timezone>
+    </developer>
+  </developers>
+
+  <mailingLists>
+    <mailingList>
+      <name>Huahin Framework</name>
+      <subscribe>huahin-framework-subscribe@googlegroups.com</subscribe>
+      <unsubscribe>huahin-framework-unsubscribe@googlegroups.com</unsubscribe>
+      <post>huahin-framework@googlegroups.com</post>
+      <archive>http://groups.google.com/group/huahin-framework</archive>
+    </mailingList>
+  </mailingLists>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
