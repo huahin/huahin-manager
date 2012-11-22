@@ -40,7 +40,8 @@ Huahin can get a list of MapReduce jobs, get status, do a kill for the job, and 
 
 <h3>Download</h3>
 
-<p><a href="https://github.com/downloads/huahin/huahin-manager/huahin-manager-a-0.1.3.tar.gz">Huahin Manager 0.1.3 for Apache Hadoop 1.0.3</a>
+<p><a href="https://github.com/downloads/huahin/huahin-manager/huahin-manager-c-0.2.0-beta.tar.gz">Huahin Manager 0.2.0-beta for CDH4</a>
+<br><a href="https://github.com/downloads/huahin/huahin-manager/huahin-manager-a-0.1.3.tar.gz">Huahin Manager 0.1.3 for Apache Hadoop 1.0.3</a>
 <br><a href="https://github.com/downloads/huahin/huahin-manager/huahin-manager-c-0.1.3.tar.gz">Huahin Manager 0.1.3 for CDH3u4</a>
 <br></p>
 
@@ -63,10 +64,18 @@ Huahin can get a list of MapReduce jobs, get status, do a kill for the job, and 
 <p>Edit the huahin-manager-x.x.x/conf/huahinManager.properties file and set mapred.job.tracker property to the JobTracker URI,
 set fs.default.name property to the NameNode URI, and set job.queue.limit property to the job queue limit.
 job queue limit is 0, does not manage the queue.
-For example:</p>
+For 0.1.X example:</p>
 
 <pre><code>mapred.job.tracker=localhost:9001
 fs.default.name=hdfs://localhost:9000
+job.queue.limit=2
+</code></pre>
+
+<p>For 0.2.X example:</p>
+
+<pre><code>yarn.resourcemanager.address=localhost:8032
+mapreduce.jobhistory.address=localhost:10020
+fs.defaultFS=hdfs://localhost:8020
 job.queue.limit=2
 </code></pre>
 
