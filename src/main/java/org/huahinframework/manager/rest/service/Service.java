@@ -29,12 +29,13 @@ public abstract class Service {
     private Properties properties;
     private String queuePath;
     private String jarPath;
+    private JobConf jobConf;
 
     /**
      * @return {@link JobConf}
      */
     protected JobConf getJobConf() {
-        return JobUtils.getJobConf(properties);
+        return jobConf;
     }
 
     /**
@@ -58,5 +59,6 @@ public abstract class Service {
         this.properties = properties;
         this.queuePath = QueueUtils.getQueuePath(properties.getHuahinHome());
         this.jarPath = properties.getHuahinHome() + "/queue/jar/";
+        this.jobConf = JobUtils.getJobConf(this.properties);
     }
 }

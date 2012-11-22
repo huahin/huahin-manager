@@ -1,3 +1,6 @@
+0.2.0-beta
+ * supported CDH4
+
 0.1.3
  * add: Register job.
  * add: Job queue management.

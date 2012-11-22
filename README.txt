@@ -24,10 +24,17 @@ Configure Huahin Manager
 Edit the huahin-manager-x.x.x/conf/huahinManager.properties file and set mapred.job.tracker property to the JobTracker URI,
 set fs.default.name property to the NameNode URI, and set job.queue.limit property to the job queue limit.
 job queue limit is 0, does not manage the queue.
-For example:
+For 0.1.X example:
 
   mapred.job.tracker=localhost:9001
   fs.default.name=hdfs://localhost:9000
+  job.queue.limit=2
+
+For 0.2.X example:
+
+  yarn.resourcemanager.address=localhost:8032
+  mapreduce.jobhistory.address=localhost:10020
+  fs.defaultFS=hdfs://localhost:8020
   job.queue.limit=2
 
 When you change the boot port, edit the huahin-manager-x.x.x/conf/port file.
@@ -127,7 +134,7 @@ Get all queue list.
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/queue/list"
 
-Get run queue statuses.
+Get all queue statuses.
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/queue/statuses"
 

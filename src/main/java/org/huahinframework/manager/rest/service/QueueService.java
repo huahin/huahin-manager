@@ -94,7 +94,7 @@ public class QueueService extends Service {
     @Path("/statuses")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray statuses(@PathParam(QUEUEID) String queueId) {
+    public JSONArray statuses() {
         JSONArray jsonArray = null;
 
         try {

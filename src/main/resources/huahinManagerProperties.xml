@@ -8,10 +8,12 @@
   </bean>
 
   <bean id="properties" class="org.huahinframework.manager.Properties">
-    <property name="mapredJobTracker"
-              value="${mapred.job.tracker}"/>
-    <property name="fsDefaultName"
-              value="${fs.default.name}"/>
+    <property name="rmAddress"
+              value="${yarn.resourcemanager.address}"/>
+    <property name="mapreduceJobhistoryAddress"
+              value="${mapreduce.jobhistory.address}"/>
+    <property name="fsDefaultFS"
+              value="${fs.defaultFS}"/>
     <property name="jobQueueLimit"
               value="${job.queue.limit}"/>
   </bean>

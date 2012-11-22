@@ -59,7 +59,15 @@ public class RunQueue implements Callable<Void> {
             ClassLoader loader = URLClassLoader.newInstance(urls);
             Class<Tool> clazz = (Class<Tool>) loader.loadClass(queue.getClazz());
 
+            if (!(clazz.newInstance() instanceof Tool)) {
+                queue.setMessage("this jar not supported. this class dose not instance of Tool.class.");
+                QueueUtils.registerQueue(queuePath, queue);
+                return null;
+            }
+
+            log.info("job start: " + clazz.getName());
             ToolRunner.run(jobConf, clazz.newInstance(), queue.getArguments());
+            log.info("job end: " + clazz.getName());
         } catch (Exception e) {
             queue.setMessage(e.toString());
             QueueUtils.registerQueue(queuePath, queue);

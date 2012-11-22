@@ -18,33 +18,31 @@
 package org.huahinframework.manager.util;
 
 import java.io.IOException;
-import java.io.StringReader;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTML.Tag;
-import javax.swing.text.html.HTMLEditorKit.ParserCallback;
-import javax.swing.text.html.parser.ParserDelegator;
-
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.CommonConfigurationKeysPublic;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.JobStatus;
-import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapreduce.Cluster;
+import org.apache.hadoop.mapreduce.JobStatus;
+import org.apache.hadoop.mapreduce.JobStatus.State;
+import org.apache.hadoop.mapreduce.MRConfig;
+import org.apache.hadoop.yarn.conf.YarnConfiguration;
 import org.huahinframework.manager.Properties;
 import org.huahinframework.manager.response.Response;
 import org.json.JSONArray;
@@ -57,14 +55,10 @@ import org.json.JSONObject;
 public class JobUtils {
     private static final Log log = LogFactory.getLog(JobUtils.class);
 
-    public static final String MAPRED_JOB_TRACKER = "mapred.job.tracker";
-    public static final String FS_DEFAULT_NAME = "fs.default.name";
+    public static final String MAPREDUCE_JOBHISTORY_ADDRESS = "mapreduce.jobhistory.address";
 
-    public static final int ALL = -999;
-
-    private static final String JOB_CONF_PATH = "/jobconf.jsp?jobid=";
-
-    private static Calendar startTime = Calendar.getInstance();
+    private static String memPattern   = "%dM";
+    private static String UNAVAILABLE  = "N/A";
 
     private static Map<String, String> nameMap = new HashMap<String, String>();
     {
@@ -83,8 +77,10 @@ public class JobUtils {
      */
     public static JobConf getJobConf(Properties properties) {
         JobConf jobConf = new JobConf();
-        jobConf.set(JobUtils.MAPRED_JOB_TRACKER, properties.getMapredJobTracker());
-        jobConf.set(JobUtils.FS_DEFAULT_NAME, properties.getFsDefaultName());
+        jobConf.set(MRConfig.FRAMEWORK_NAME, MRConfig.YARN_FRAMEWORK_NAME);
+        jobConf.set(YarnConfiguration.RM_ADDRESS, properties.getRmAddress());
+        jobConf.set(MAPREDUCE_JOBHISTORY_ADDRESS, properties.getMapreduceJobhistoryAddress());
+        jobConf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, properties.getFsDefaultFS());
         return jobConf;
     }
 
@@ -93,9 +89,11 @@ public class JobUtils {
      * @param conf
      * @return {@link JSONArray}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @SuppressWarnings("unchecked")
-    public static JSONArray getJobs(int state, JobConf conf) throws JSONException {
+    public static JSONArray getJobs(State state, JobConf conf)
+            throws JSONException, InterruptedException {
         JSONArray jsonArray = null;
         try {
             jsonArray = new JSONArray(listJob(state, conf));
@@ -115,16 +113,17 @@ public class JobUtils {
      * @param conf
      * @return {@link List} of {@link JSONObject}
      * @throws IOException
+     * @throws InterruptedException
      */
-    public static List<JSONObject> listJob(int state, JobConf conf) throws IOException {
+    public static List<JSONObject> listJob(State state, JobConf conf)
+            throws IOException, InterruptedException {
         List<JSONObject> l = new ArrayList<JSONObject>();
 
-        JobClient jobClient = new JobClient(conf);
-
-        JobStatus[] jobStatuses = jobClient.getAllJobs();
-        for (JobStatus jobStatus : jobStatuses) {
-            if (state == ALL || state == jobStatus.getRunState()) {
-                Map<String, Object> m = getJob(jobClient, jobStatus);
+        Cluster cluster = new Cluster(conf);
+        for (JobStatus jobStatus : cluster.getAllJobStatuses()) {
+            jobStatus.getState();
+            if (state == null || state == jobStatus.getState()) {
+                Map<String, Object> m = getJob(jobStatus);
                 if (m != null) {
                     l.add(new JSONObject(m));
                 }
@@ -135,107 +134,35 @@ public class JobUtils {
     }
 
     /**
-     * @param jobClient
      * @param jobStatus
      * @return JSON map
      * @throws IOException
      */
-    public static Map<String, Object> getJob(JobClient jobClient, JobStatus jobStatus) throws IOException {
-        RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
-        if (runningJob == null) {
-            return null;
-        }
+    public static Map<String, Object> getJob(JobStatus jobStatus) throws IOException {
+        int numUsedSlots = jobStatus.getNumUsedSlots();
+        int numReservedSlots = jobStatus.getNumReservedSlots();
+        int usedMem = jobStatus.getUsedMem();
+        int rsvdMem = jobStatus.getReservedMem();
+        int neededMem = jobStatus.getNeededMem();
+
         Map<String, Object> m = new HashMap<String, Object>();
         m.put(Response.JOBID, jobStatus.getJobID().toString());
-        m.put(Response.PRIORITY, jobStatus.getJobPriority().name());
-        m.put(Response.USER, jobStatus.getUsername());
+        m.put(Response.NAME, jobStatus.getJobName());
+        m.put(Response.STATE, jobStatus.getState());
+
+        Calendar startTime = Calendar.getInstance();
         startTime.setTimeInMillis(jobStatus.getStartTime());
         m.put(Response.START_TIME, startTime.getTime().toString());
-        m.put(Response.NAME, runningJob.getJobName());
-        m.put(Response.STATE, JobStatus.getJobRunState(jobStatus.getRunState()));
-        m.put(Response.MAP_COMPLETE, jobStatus.mapProgress() * 100 + "%");
-        m.put(Response.REDUCE_COMPLETE, jobStatus.reduceProgress() * 100 + "%");
-        m.put(Response.SCHEDULEING_INFO, jobStatus.getSchedulingInfo());
-        return m;
-    }
 
-    /**
-     * @param trackingURL
-     * @return job detail map
-     * @throws HttpException
-     * @throws IOException
-     */
-    public static Map<String, String> getJobDetail(final String trackingURL)
-            throws HttpException, IOException {
-        final Map<String, String> m = new HashMap<String, String>();
-        HttpClient httpClient = new HttpClient();
-        HttpMethod method = new GetMethod(trackingURL);
-
-        method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-                                        new DefaultHttpMethodRetryHandler(3, false));
-
-        int statusCode = httpClient.executeMethod(method);
-        if (statusCode != 200) {
-            method.releaseConnection();
-            return null;
-        }
-
-        String responseBody = method.getResponseBodyAsString();
-
-        ParserDelegator parser = new ParserDelegator();
-        parser.parse(new StringReader(responseBody),
-                     new ParserCallback() {
-                         String name;
-                         String value;
-                         boolean b = false;
-                         boolean afterB = false;
-
-                         /**
-                          * {@inheritDoc}
-                          */
-                         @Override
-                         public void handleStartTag(Tag t, MutableAttributeSet a, int pos) {
-                             if (t.equals(HTML.Tag.B)) {
-                                 b = true;
-                             }
-                         }
-
-                         /**
-                          * {@inheritDoc}
-                          */
-                         @Override
-                         public void handleText(char[] data, int pos) {
-                             if (b) {
-                                 name = new String(data).replace(":", "").replace(" ", "");
-                             } else if (afterB) {
-                                 value = new String(data).trim();
-                                 if (!value.isEmpty()) {
-                                     String key = nameMap.get(name);
-                                     if (key != null) {
-                                         m.put(key, value);
-                                     }
-                                 }
-
-                                 afterB = false;
-                                 name = null;
-                                 value = null;
-                             }
-                         }
-
-                         /**
-                          * {@inheritDoc}
-                          */
-                         @Override
-                         public void handleEndTag(Tag t, int pos) {
-                             if (t.equals(HTML.Tag.B)) {
-                                 b = false;
-                                 afterB = true;
-                             }
-                         }
-                     },
-                     true);
-
-        method.releaseConnection();
+        m.put(Response.USER, jobStatus.getUsername());
+        m.put(Response.QUEUE, jobStatus.getQueue());
+        m.put(Response.PRIORITY, jobStatus.getPriority().name());
+        m.put(Response.USED_CONTAINERS, numUsedSlots < 0 ? UNAVAILABLE : numUsedSlots);
+        m.put(Response.RSVD_CONTAINERS, numReservedSlots < 0 ? UNAVAILABLE : numReservedSlots);
+        m.put(Response.USED_MEM, usedMem < 0 ? UNAVAILABLE : String.format(memPattern, usedMem));
+        m.put(Response.RSVD_MEM, rsvdMem < 0 ? UNAVAILABLE : String.format(memPattern, rsvdMem));
+        m.put(Response.NEEDED_MEM, neededMem < 0 ? UNAVAILABLE : String.format(memPattern, neededMem));
+        m.put(Response.AM_INFO, jobStatus.getSchedulingInfo());
         return m;
     }
 
@@ -245,80 +172,32 @@ public class JobUtils {
      * @return job configuration map
      * @throws IOException
      * @throws HttpException
+     * @throws DocumentException
      */
-    public static Map<String, String> getJobConfiguration(final String trackingURL, String jobId)
+    public static Map<String, String> getJobConfiguration(final String jobFile, JobConf conf)
             throws HttpException, IOException {
         final Map<String, String> m = new HashMap<String, String>();
-        HttpClient httpClient = new HttpClient();
 
-        URI uri = URI.create(trackingURL);
-        String jobconfURL = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + JOB_CONF_PATH + jobId;
+        URI uri = URI.create(jobFile);
+        String path = uri.getPath();
 
-        HttpMethod method = new GetMethod(jobconfURL);
-        method.getParams().setParameter(HttpMethodParams.RETRY_HANDLER,
-                                        new DefaultHttpMethodRetryHandler(3, false));
-
-        int statusCode = httpClient.executeMethod(method);
-        if (statusCode != 200) {
-            method.releaseConnection();
+        FileSystem fs = FileSystem.get(conf);
+        FileStatus fstatus = fs.getFileStatus(new Path(path));
+        if (fstatus == null) {
             return null;
         }
 
-        String responseBody = method.getResponseBodyAsString();
-        ParserDelegator parser = new ParserDelegator();
-        parser.parse(new StringReader(responseBody),
-                     new ParserCallback() {
-                         String name;
-                         String value;
-                         boolean td = false;
-                         boolean b = false;
+        InputStream is = fs.open(fstatus.getPath());
+        Configuration jobConf = new JobConf(false);
+        jobConf.addResource(is);
 
-                         /**
-                          * {@inheritDoc}
-                          */
-                        @Override
-                         public void handleStartTag(Tag t, MutableAttributeSet a, int pos) {
-                            if (t.equals(HTML.Tag.B)) {
-                                b = true;
-                            } else if (t.equals(HTML.Tag.TD)) {
-                                td = true;
-                            }
-                        }
+        Iterator<Entry<String, String>> ite = jobConf.iterator();
+        while (ite.hasNext()) {
+            Entry<String, String> entry = ite.next();
+            m.put(entry.getKey(), entry.getValue());
+        }
+        is.close();
 
-                        /**
-                         * {@inheritDoc}
-                         */
-                        @Override
-                        public void handleText(char[] data, int pos) {
-                            if (td && b) {
-                                if (name != null && value == null) {
-                                    m.put(name, "");
-                                }
-                                name = new String(data);
-                            } else if (td) {
-                                value = new String(data);
-                            }
-                        }
-
-                        /**
-                         * {@inheritDoc}
-                         */
-                        @Override
-                        public void handleEndTag(Tag t, int pos) {
-                            if (t.equals(HTML.Tag.B)) {
-                                b = false;
-                            } else if (t.equals(HTML.Tag.TD)) {
-                                if (name != null && value != null) {
-                                    m.put(name, value);
-                                    name = null;
-                                    value = null;
-                                }
-                                td = false;
-                            }
-                        }
-                    },
-                    true);
-        method.releaseConnection();
         return m;
     }
 }

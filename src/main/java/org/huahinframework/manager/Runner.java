@@ -63,8 +63,8 @@ public class Runner {
 
         ConfigurableApplicationContext applicationContext = null;
         try {
-            applicationContext
-                = new ClassPathXmlApplicationContext("huahinManagerProperties.xml");
+            applicationContext =
+                    new ClassPathXmlApplicationContext("huahinManagerProperties.xml");
             Properties properties = (Properties) applicationContext.getBean("properties");
 
             QueueManager queueManager = new QueueManager(properties);
@@ -88,10 +88,6 @@ public class Runner {
         } catch (Exception e) {
             log.error("huahin-manager aborted", e);
             System.exit(-1);
-        } finally {
-            if (applicationContext != null) {
-                applicationContext.close();
-            }
         }
 
         log.info("huahin-manager end");

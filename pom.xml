@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.huahinframework</groupId>
   <artifactId>huahin-manager</artifactId>
-  <version>0.1.3</version>
+  <version>0.2.0-beta</version>
   <packaging>jar</packaging>
 
   <name>huahin-manager</name>
@@ -183,8 +183,235 @@
       <dependencies>
         <dependency>
           <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-core</artifactId>
-          <version>0.20.2-cdh3u5</version>
+          <artifactId>hadoop-common</artifactId>
+          <version>2.0.0-cdh4.1.2</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.zookeeper</groupId>
+              <artifactId>zookeeper</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>javax.servlet.jsp</groupId>
+              <artifactId>jsp-api</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>javax.servlet</groupId>
+              <artifactId>servlet-api</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-json</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-server</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-mapreduce-client-core</artifactId>
+          <version>2.0.0-cdh4.1.2</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-framework</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http-server</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http-servlet</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-rcm</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.google.inject</groupId>
+              <artifactId>guice</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.google.inject.extensions</groupId>
+              <artifactId>guice-servlet</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-client</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-grizzly2</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.contribs</groupId>
+              <artifactId>jersey-guice</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-json</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-server</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.jersey-test-framework</groupId>
+              <artifactId>jersey-test-framework-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.jersey-test-framework</groupId>
+              <artifactId>jersey-test-framework-grizzly2</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-mapreduce-client-jobclient</artifactId>
+          <version>2.0.0-cdh4.1.2</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-framework</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http-server</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http-servlet</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-rcm</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.google.inject</groupId>
+              <artifactId>guice</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.google.inject.extensions</groupId>
+              <artifactId>guice-servlet</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-client</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-grizzly2</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.contribs</groupId>
+              <artifactId>jersey-guice</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-json</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-server</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.jersey-test-framework</groupId>
+              <artifactId>jersey-test-framework-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.jersey-test-framework</groupId>
+              <artifactId>jersey-test-framework-grizzly2</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-hdfs</artifactId>
+          <version>2.0.0-cdh4.1.2</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-framework</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http-server</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-http-servlet</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>org.glassfish.grizzly</groupId>
+              <artifactId>grizzly-rcm</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.google.inject</groupId>
+              <artifactId>guice</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.google.inject.extensions</groupId>
+              <artifactId>guice-servlet</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-client</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-grizzly2</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.contribs</groupId>
+              <artifactId>jersey-guice</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-json</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey</groupId>
+              <artifactId>jersey-server</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.jersey-test-framework</groupId>
+              <artifactId>jersey-test-framework-core</artifactId>
+            </exclusion>
+            <exclusion>
+              <groupId>com.sun.jersey.jersey-test-framework</groupId>
+              <artifactId>jersey-test-framework-grizzly2</artifactId>
+            </exclusion>
+          </exclusions>
         </dependency>
       </dependencies>
     </profile>
@@ -230,38 +457,49 @@
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty</artifactId>
-      <version>6.1.25</version>
+      <version>6.1.26</version>
     </dependency>
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-ajp</artifactId>
-      <version>6.1.25</version>
+      <version>6.1.26</version>
     </dependency>
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-util</artifactId>
-      <version>6.1.25</version>
+      <version>6.1.26</version>
     </dependency>
     <dependency>
       <groupId>org.mortbay.jetty</groupId>
       <artifactId>jetty-management</artifactId>
-      <version>6.1.25</version>
+      <version>6.1.26</version>
+    </dependency>
+    <dependency>
+      <groupId>org.mortbay.jetty</groupId>
+      <artifactId>jsp-api-2.0</artifactId>
+      <version>6.1.26</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-httpclient</groupId>
+      <artifactId>commons-httpclient</artifactId>
+      <version>3.1</version>
     </dependency>
 
     <dependency>
       <groupId>org.apache.wink</groupId>
       <artifactId>wink-server</artifactId>
-      <version>1.2.0-incubating</version>
+      <version>1.2.1-incubating</version>
     </dependency>
     <dependency>
       <groupId>org.apache.wink</groupId>
       <artifactId>wink-spring-support</artifactId>
-      <version>1.2.0-incubating</version>
+      <version>1.2.1-incubating</version>
     </dependency>
     <dependency>
       <groupId>org.apache.wink</groupId>
       <artifactId>wink-json-provider</artifactId>
-      <version>1.2.0-incubating</version>
+      <version>1.2.1-incubating</version>
     </dependency>
   </dependencies>
 </project>

@@ -25,8 +25,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.JobStatus;
+import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.huahinframework.manager.Properties;
 import org.huahinframework.manager.util.JobUtils;
 
@@ -34,6 +36,8 @@ import org.huahinframework.manager.util.JobUtils;
  *
  */
 public class QueueManager implements Callable<Void> {
+    private static final Log log = LogFactory.getLog(QueueManager.class);
+
     private static final int POLLING_SECOND = (30 * 1000);
 
     private Properties properties;
@@ -56,6 +60,8 @@ public class QueueManager implements Callable<Void> {
      */
     @Override
     public Void call() throws Exception {
+        log.info("QueueManager start");
+
         try {
             List<RunnableFuture<Void>> threads = new ArrayList<RunnableFuture<Void>>();
             for (;;) {
@@ -70,8 +76,8 @@ public class QueueManager implements Callable<Void> {
                     continue;
                 }
 
-                int runnings = JobUtils.listJob(JobStatus.RUNNING, jobConf).size();
-                int preps = JobUtils.listJob(JobStatus.PREP, jobConf).size();
+                int runnings = JobUtils.listJob(State.RUNNING, jobConf).size();
+                int preps = JobUtils.listJob(State.PREP, jobConf).size();
                 if (jobQueueLimit > 0 && (runnings + preps) >= jobQueueLimit) {
                     Thread.sleep(POLLING_SECOND);
                     continue;
@@ -105,7 +111,11 @@ public class QueueManager implements Callable<Void> {
                 QueueUtils.registerQueue(queuePath, queue);
             }
         } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e);
         }
+
+        log.info("QueueManager enb");
 
         return null;
     }

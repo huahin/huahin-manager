@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,12 +43,14 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.mapred.Counters.Counter;
-import org.apache.hadoop.mapred.Counters.Group;
-import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobID;
-import org.apache.hadoop.mapred.JobStatus;
-import org.apache.hadoop.mapred.RunningJob;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Cluster;
+import org.apache.hadoop.mapreduce.Counter;
+import org.apache.hadoop.mapreduce.CounterGroup;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.JobID;
+import org.apache.hadoop.mapreduce.JobStatus;
+import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.apache.wink.common.internal.utils.MediaTypeUtils;
 import org.apache.wink.common.model.multipart.InMultiPart;
 import org.apache.wink.common.model.multipart.InPart;
@@ -84,77 +87,85 @@ public class JobService extends Service {
     /**
      * @return job {@link JSONArray}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @Path("/list")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray list() throws JSONException {
-        return JobUtils.getJobs(JobUtils.ALL, getJobConf());
+    public JSONArray list() throws JSONException, InterruptedException {
+        return JobUtils.getJobs(null, getJobConf());
     }
 
     /**
      * @return job {@link JSONArray}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @Path("/list/failed")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray listFailed() throws JSONException {
-        return JobUtils.getJobs(JobStatus.FAILED, getJobConf());
+    public JSONArray listFailed() throws JSONException, InterruptedException {
+        return JobUtils.getJobs(State.FAILED, getJobConf());
     }
 
     /**
      * @return job {@link JSONArray}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @Path("/list/killed")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray listKilled() throws JSONException {
-        return JobUtils.getJobs(JobStatus.KILLED, getJobConf());
+    public JSONArray listKilled() throws JSONException, InterruptedException {
+        return JobUtils.getJobs(State.KILLED, getJobConf());
     }
 
     /**
      * @return job {@link JSONArray}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @Path("/list/prep")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray listPrep() throws JSONException {
-        return JobUtils.getJobs(JobStatus.PREP, getJobConf());
+    public JSONArray listPrep() throws JSONException, InterruptedException {
+        return JobUtils.getJobs(State.PREP, getJobConf());
     }
 
     /**
      * @return job {@link JSONArray}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @Path("/list/running")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray listRunning() throws JSONException {
-        return JobUtils.getJobs(JobStatus.RUNNING, getJobConf());
+    public JSONArray listRunning() throws JSONException, InterruptedException {
+        return JobUtils.getJobs(State.RUNNING, getJobConf());
     }
 
     /**
      * @return job {@link JSONArray}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @Path("/list/succeeded")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray listSucceeded() throws JSONException {
-        return JobUtils.getJobs(JobStatus.SUCCEEDED, getJobConf());
+    public JSONArray listSucceeded() throws JSONException, InterruptedException {
+        return JobUtils.getJobs(State.SUCCEEDED, getJobConf());
     }
 
     /**
      * @return {@link JSONObject}
      * @throws JSONException
+     * @throws InterruptedException
      */
     @Path("/status/{" + JOBID + "}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONObject status(@PathParam(JOBID) String jobId) throws JSONException {
+    public JSONObject status(@PathParam(JOBID) String jobId)
+            throws JSONException, InterruptedException {
         JSONObject jsonObject = null;
         try {
             Map<String, Object> job = getStatus(jobId);
@@ -188,22 +199,18 @@ public class JobService extends Service {
     @Produces(MediaType.APPLICATION_JSON)
     public JSONObject detail(@PathParam(JOBID) String jobId) throws JSONException {
         JSONObject jsonObject = null;
+        JobConf conf = getJobConf();
         try {
             final Map<String, Object> job = getStatus(jobId);
             if (job != null) {
-                JobClient jobClient = new JobClient(getJobConf());
-                RunningJob runningJob = jobClient.getJob(JobID.forName(jobId));
-                if (runningJob != null) {
-                    job.put(Response.JOB_FILE, runningJob.getJobFile());
-                    String trackingURL = runningJob.getTrackingURL();
-                    job.put(Response.TRACKING_URL, trackingURL);
+                Cluster cluster = new Cluster(conf);
+                Job j = cluster.getJob(JobID.forName(jobId));
+                if (j != null) {
+                    String jobFile = j.getJobFile();
+                    job.put(Response.JOB_FILE, jobFile);
+                    job.put(Response.TRACKING_URL, j.getTrackingURL());
 
-                    Map<String, String> jobDetail = JobUtils.getJobDetail(trackingURL);
-                    if (jobDetail != null) {
-                        job.putAll(jobDetail);
-                    }
-
-                    Map<String, String> jobConf = JobUtils.getJobConfiguration(trackingURL, jobId);
+                    Map<String, String> jobConf = JobUtils.getJobConfiguration(jobFile, conf);
                     if (jobConf != null) {
                         job.put(Response.CONFIGURATION, jobConf);
                     }
@@ -348,22 +355,20 @@ public class JobService extends Service {
     public JSONObject killJobId(@PathParam(JOBID) String jobId) {
         Map<String, String> status = new HashMap<String, String>();
         try {
-            JobClient jobClient = new JobClient(getJobConf());
-
-            JobStatus[] jobStatuses = jobClient.getAllJobs();
-            for (JobStatus jobStatus : jobStatuses) {
+            Cluster cluster = new Cluster(getJobConf());
+            for (JobStatus jobStatus : cluster.getAllJobStatuses()) {
                 if (jobStatus.getJobID().toString().equals(jobId)) {
-                    RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
-                    if (runningJob == null) {
+                    Job job = cluster.getJob(jobStatus.getJobID());
+                    if (job == null) {
                         break;
                     }
 
-                    runningJob.killJob();
+                    job.killJob();
                     status.put(Response.STATUS, "Killed job " + jobId);
                     break;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e);
             status.put(Response.STATUS, e.getMessage());
@@ -385,21 +390,20 @@ public class JobService extends Service {
     public JSONObject killJobName(@PathParam(JOBNAME) String jobName) {
         Map<String, String> status = new HashMap<String, String>();
         try {
-            JobClient jobClient = new JobClient(getJobConf());
-            JobStatus[] jobStatuses = jobClient.getAllJobs();
-            for (JobStatus jobStatus : jobStatuses) {
-                RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
-                if (runningJob == null) {
+            Cluster cluster = new Cluster(getJobConf());
+            for (JobStatus jobStatus : cluster.getAllJobStatuses()) {
+                Job job = cluster.getJob(jobStatus.getJobID());
+                if (job == null) {
                     break;
                 }
 
-                if (runningJob.getJobName().equals(jobName)) {
-                    runningJob.killJob();
+                if (job.getJobName().equals(jobName)) {
+                    job.killJob();
                     status.put(Response.STATUS, "Killed job " + jobName);
                     break;
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             log.error(e);
             status.put(Response.STATUS, e.getMessage());
@@ -416,28 +420,32 @@ public class JobService extends Service {
      * @param jobId
      * @return {@link JSONObject}
      * @throws IOException
+     * @throws InterruptedException
      */
-    private Map<String, Object> getStatus(String jobId) throws IOException {
+    private Map<String, Object> getStatus(String jobId)
+            throws IOException, InterruptedException {
         Map<String, Object> job = null;
 
-        JobClient jobClient = new JobClient(getJobConf());
-
-        JobStatus[] jobStatuses = jobClient.getAllJobs();
-        for (JobStatus jobStatus : jobStatuses) {
+        Cluster cluster = new Cluster(getJobConf());
+        for (JobStatus jobStatus : cluster.getAllJobStatuses()) {
             if (jobStatus.getJobID().toString().equals(jobId)) {
-                job = JobUtils.getJob(jobClient, jobStatus);
-                RunningJob runningJob = jobClient.getJob(jobStatus.getJobID());
-                if (runningJob == null) {
+                job = JobUtils.getJob(jobStatus);
+                Job j = cluster.getJob(jobStatus.getJobID());
+                if (j == null) {
                     break;
                 }
 
+                Calendar finishTime = Calendar.getInstance();
+                finishTime.setTimeInMillis(j.getFinishTime());
+                job.put(Response.FINISH_TIME, finishTime.getTime().toString());
+
                 Map<String, Map<String, Long>> groups = new HashMap<String, Map<String,Long>>();
-                for (String s : runningJob.getCounters().getGroupNames()) {
-                    Group group = runningJob.getCounters().getGroup(s);
-                    Iterator<Counter> ite = group.iterator();
+                for (String s : j.getCounters().getGroupNames()) {
+                    CounterGroup counterGroup = j.getCounters().getGroup(s);
+                    Iterator<Counter> ite = counterGroup.iterator();
 
                     Map<String, Long> counters = new HashMap<String, Long>();
-                    groups.put(group.getDisplayName(), counters);
+                    groups.put(counterGroup.getDisplayName(), counters);
                     while (ite.hasNext()) {
                         Counter counter = (Counter) ite.next();
                         counters.put(counter.getDisplayName(), counter.getValue());

@@ -27,11 +27,16 @@ public class Response {
     public static final String PRIORITY = "priority";
     public static final String USER = "user";
     public static final String START_TIME = "startTime";
+    public static final String FINISH_TIME = "finishTime";
+    public static final String QUEUE = "queue";
     public static final String NAME = "name";
     public static final String STATE = "state";
-    public static final String MAP_COMPLETE = "mapComplete";
-    public static final String REDUCE_COMPLETE = "reduceComplete";
-    public static final String SCHEDULEING_INFO = "schedulingInfo";
+    public static final String USED_CONTAINERS = "usedContainers";
+    public static final String RSVD_CONTAINERS = "RsvdContainers";
+    public static final String USED_MEM = "usedMem";
+    public static final String RSVD_MEM = "rsvdMem";
+    public static final String NEEDED_MEM = "neededMem";
+    public static final String AM_INFO = "amInfo";
 
     public static final String GROUPS = "groups";
 

@@ -23,8 +23,9 @@ package org.huahinframework.manager;
 public class Properties {
     private static final String HUAHIN_HOME = System.getProperty("huahin.home");
 
-    private String mapredJobTracker;
-    private String fsDefaultName;
+    private String rmAddress;
+    private String mapreduceJobhistoryAddress;
+    private String fsDefaultFS;
     private int jobQueueLimit;
 
     /**
@@ -35,31 +36,45 @@ public class Properties {
     }
 
     /**
-     * @return the mapredJobTracker
+     * @return the rmAddress
      */
-    public String getMapredJobTracker() {
-        return mapredJobTracker;
+    public String getRmAddress() {
+        return rmAddress;
     }
 
     /**
-     * @param mapredJobTracker the mapredJobTracker to set
+     * @param rmAddress the rmAddress to set
      */
-    public void setMapredJobTracker(String mapredJobTracker) {
-        this.mapredJobTracker = mapredJobTracker;
+    public void setRmAddress(String rmAddress) {
+        this.rmAddress = rmAddress;
     }
 
     /**
-     * @return the fsDefaultName
+     * @return the mapreduceJobhistoryAddress
      */
-    public String getFsDefaultName() {
-        return fsDefaultName;
+    public String getMapreduceJobhistoryAddress() {
+        return mapreduceJobhistoryAddress;
     }
 
     /**
-     * @param fsDefaultName the fsDefaultName to set
+     * @param mapreduceJobhistoryAddress the mapreduceJobhistoryAddress to set
      */
-    public void setFsDefaultName(String fsDefaultName) {
-        this.fsDefaultName = fsDefaultName;
+    public void setMapreduceJobhistoryAddress(String mapreduceJobhistoryAddress) {
+        this.mapreduceJobhistoryAddress = mapreduceJobhistoryAddress;
+    }
+
+    /**
+     * @return the fsDefaultFS
+     */
+    public String getFsDefaultFS() {
+        return fsDefaultFS;
+    }
+
+    /**
+     * @param fsDefaultFS the fsDefaultFS to set
+     */
+    public void setFsDefaultFS(String fsDefaultFS) {
+        this.fsDefaultFS = fsDefaultFS;
     }
 
     /**
