@@ -60,17 +60,6 @@ public class JobUtils {
     private static String memPattern   = "%dM";
     private static String UNAVAILABLE  = "N/A";
 
-    private static Map<String, String> nameMap = new HashMap<String, String>();
-    {
-        nameMap.put("Finishedat", "finishedAt");
-        nameMap.put("Finishedin", "finishedIn");
-        nameMap.put("JobCleanup", "jobCleanup");
-        nameMap.put("JobSetup", "jobSetup");
-        nameMap.put("Status", "status");
-        nameMap.put("SubmitHost", "submitHost");
-        nameMap.put("SubmitHostAddress", "submitHostAddress");
-    }
-
     /**
      * @param properties
      * @return
