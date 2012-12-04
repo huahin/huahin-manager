@@ -14,6 +14,14 @@
               value="${mapreduce.jobhistory.address}"/>
     <property name="fsDefaultFS"
               value="${fs.defaultFS}"/>
+    <property name="yarnResourcemanagerWebappAddress"
+              value="${yarn.resourcemanager.webapp.address}"/>
+    <property name="yarnNodemanagerWebappAddress"
+              value="${yarn.nodemanager.webapp.address}"/>
+    <property name="yarnWebProxyAddress"
+              value="${yarn.web-proxy.address}"/>
+    <property name="mapreduceJobhistoryWebappAddress"
+              value="${mapreduce.jobhistory.webapp.address}"/>
     <property name="jobQueueLimit"
               value="${job.queue.limit}"/>
   </bean>

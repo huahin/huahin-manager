@@ -26,7 +26,7 @@ import org.huahinframework.manager.util.JobUtils;
  *
  */
 public abstract class Service {
-    private Properties properties;
+    protected Properties properties;
     private String queuePath;
     private String jarPath;
     private JobConf jobConf;

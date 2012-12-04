@@ -13,6 +13,7 @@
       <set>
         <ref bean="jobService" />
         <ref bean="queueService" />
+        <ref bean="yarnAPIService" />
       </set>
     </property>
   </bean>

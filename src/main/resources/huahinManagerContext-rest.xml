@@ -12,4 +12,10 @@
       <ref bean="properties" />
     </property>
   </bean>
+  <bean id="yarnAPIService"
+        class="org.huahinframework.manager.rest.service.YARNAPIService">
+    <property name="properties">
+      <ref bean="properties" />
+    </property>
+  </bean>
 </beans>

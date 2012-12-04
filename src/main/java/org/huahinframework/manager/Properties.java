@@ -26,6 +26,10 @@ public class Properties {
     private String rmAddress;
     private String mapreduceJobhistoryAddress;
     private String fsDefaultFS;
+    private String yarnResourcemanagerWebappAddress;
+    private String yarnNodemanagerWebappAddress;
+    private String yarnWebProxyAddress;
+    private String mapreduceJobhistoryWebappAddress;
     private int jobQueueLimit;
 
     /**
@@ -75,6 +79,64 @@ public class Properties {
      */
     public void setFsDefaultFS(String fsDefaultFS) {
         this.fsDefaultFS = fsDefaultFS;
+    }
+
+    /**
+     * @return the yarnResourcemanagerWebappAddress
+     */
+    public String getYarnResourcemanagerWebappAddress() {
+        return yarnResourcemanagerWebappAddress;
+    }
+
+    /**
+     * @param yarnResourcemanagerWebappAddress the yarnResourcemanagerWebappAddress to set
+     */
+    public void setYarnResourcemanagerWebappAddress(
+            String yarnResourcemanagerWebappAddress) {
+        this.yarnResourcemanagerWebappAddress = yarnResourcemanagerWebappAddress;
+    }
+
+    /**
+     * @return the yarnNodemanagerWebappAddress
+     */
+    public String getYarnNodemanagerWebappAddress() {
+        return yarnNodemanagerWebappAddress;
+    }
+
+    /**
+     * @param yarnNodemanagerWebappAddress the yarnNodemanagerWebappAddress to set
+     */
+    public void setYarnNodemanagerWebappAddress(String yarnNodemanagerWebappAddress) {
+        this.yarnNodemanagerWebappAddress = yarnNodemanagerWebappAddress;
+    }
+
+    /**
+     * @return the yarnWebProxyAddress
+     */
+    public String getYarnWebProxyAddress() {
+        return yarnWebProxyAddress;
+    }
+
+    /**
+     * @param yarnWebProxyAddress the yarnWebProxyAddress to set
+     */
+    public void setYarnWebProxyAddress(String yarnWebProxyAddress) {
+        this.yarnWebProxyAddress = yarnWebProxyAddress;
+    }
+
+    /**
+     * @return the mapreduceJobhistoryWebappAddress
+     */
+    public String getMapreduceJobhistoryWebappAddress() {
+        return mapreduceJobhistoryWebappAddress;
+    }
+
+    /**
+     * @param mapreduceJobhistoryWebappAddress the mapreduceJobhistoryWebappAddress to set
+     */
+    public void setMapreduceJobhistoryWebappAddress(
+            String mapreduceJobhistoryWebappAddress) {
+        this.mapreduceJobhistoryWebappAddress = mapreduceJobhistoryWebappAddress;
     }
 
     /**
