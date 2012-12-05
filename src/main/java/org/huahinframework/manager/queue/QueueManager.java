@@ -25,6 +25,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.RunnableFuture;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.JobStatus;
 import org.huahinframework.manager.Properties;
@@ -34,6 +36,8 @@ import org.huahinframework.manager.util.JobUtils;
  *
  */
 public class QueueManager implements Callable<Void> {
+    private static final Log log = LogFactory.getLog(QueueManager.class);
+
     private static final int POLLING_SECOND = (30 * 1000);
 
     private Properties properties;
@@ -56,6 +60,8 @@ public class QueueManager implements Callable<Void> {
      */
     @Override
     public Void call() throws Exception {
+        log.info("QueueManager start");
+
         try {
             List<RunnableFuture<Void>> threads = new ArrayList<RunnableFuture<Void>>();
             for (;;) {
@@ -106,6 +112,8 @@ public class QueueManager implements Callable<Void> {
             }
         } catch (Exception e) {
         }
+
+        log.info("QueueManager end");
 
         return null;
     }
