@@ -151,7 +151,15 @@ public class QueueUtils {
      */
     public static void removeQueue(String path, Queue queue) {
         String queueFile = path + queue.getId().replace("Q_", "");
-        new File(queueFile).delete();
-        new File(queue.getJar()).delete();
+        File tmp = new File(queueFile);
+        if (tmp.exists()) {
+            tmp.delete();
+        }
+        if (queue.getJar() != null) {
+            tmp = new File(queue.getJar());
+            if (tmp.exists()) {
+                tmp.delete();
+            }
+        }
     }
 }

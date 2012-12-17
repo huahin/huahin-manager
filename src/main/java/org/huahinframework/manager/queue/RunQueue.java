@@ -18,9 +18,9 @@
 package org.huahinframework.manager.queue;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.concurrent.Callable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,7 +31,7 @@ import org.apache.hadoop.util.ToolRunner;
 /**
  *
  */
-public class RunQueue implements Callable<Void> {
+public class RunQueue extends Thread {
     private static final Log log = LogFactory.getLog(RunQueue.class);
 
     private JobConf jobConf;
@@ -48,11 +48,11 @@ public class RunQueue implements Callable<Void> {
     }
 
     /* (non-Javadoc)
-     * @see java.util.concurrent.Callable#call()
+     * @see java.lang.Thread#run()
      */
     @SuppressWarnings("unchecked")
     @Override
-    public Void call() throws Exception {
+    public void run() {
         try {
             File jarFile = new File(queue.getJar());
             URL[] urls = { jarFile.toURI().toURL() };
@@ -62,7 +62,7 @@ public class RunQueue implements Callable<Void> {
             if (!(clazz.newInstance() instanceof Tool)) {
                 queue.setMessage("this jar not supported. this class dose not instance of Tool.class.");
                 QueueUtils.registerQueue(queuePath, queue);
-                return null;
+                return;
             }
 
             log.info("job start: " + clazz.getName());
@@ -70,11 +70,14 @@ public class RunQueue implements Callable<Void> {
             log.info("job end: " + clazz.getName());
         } catch (Exception e) {
             queue.setMessage(e.toString());
-            QueueUtils.registerQueue(queuePath, queue);
+            try {
+                QueueUtils.registerQueue(queuePath, queue);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                log.error(e1);
+            }
             e.printStackTrace();
             log.error(e);
         }
-
-        return null;
     }
 }

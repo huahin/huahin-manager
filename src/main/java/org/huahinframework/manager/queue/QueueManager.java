@@ -21,21 +21,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapreduce.JobStatus.State;
 import org.huahinframework.manager.Properties;
 import org.huahinframework.manager.util.JobUtils;
 
 /**
  *
  */
-public class QueueManager implements Callable<Void> {
+public class QueueManager extends Thread {
     private static final Log log = LogFactory.getLog(QueueManager.class);
 
     private static final int POLLING_SECOND = (30 * 1000);
@@ -56,14 +52,14 @@ public class QueueManager implements Callable<Void> {
     }
 
     /* (non-Javadoc)
-     * @see java.util.concurrent.Callable#call()
+     * @see java.lang.Thread#run()
      */
     @Override
-    public Void call() throws Exception {
+    public void run() {
         log.info("QueueManager start");
 
         try {
-            List<RunnableFuture<Void>> threads = new ArrayList<RunnableFuture<Void>>();
+            List<Thread> threads = new ArrayList<Thread>();
             for (;;) {
                 Map<String, Queue> runQueueMap = QueueUtils.readRemoveQueue(queuePath);
                 for (Entry<String, Queue> entry : runQueueMap.entrySet()) {
@@ -76,16 +72,18 @@ public class QueueManager implements Callable<Void> {
                     continue;
                 }
 
-                int runnings = JobUtils.listJob(State.RUNNING, jobConf).size();
-                int preps = JobUtils.listJob(State.PREP, jobConf).size();
+                int runnings =
+                        JobUtils.listJob(org.apache.hadoop.mapreduce.JobStatus.State.RUNNING, jobConf).size();
+                int preps =
+                        JobUtils.listJob(org.apache.hadoop.mapreduce.JobStatus.State.PREP, jobConf).size();
                 if (jobQueueLimit > 0 && (runnings + preps) >= jobQueueLimit) {
                     Thread.sleep(POLLING_SECOND);
                     continue;
                 }
 
-                List<RunnableFuture<Void>> removes = new ArrayList<RunnableFuture<Void>>();
-                for (RunnableFuture<Void> t : threads) {
-                    if (t.isDone()) {
+                List<Thread> removes = new ArrayList<Thread>();
+                for (Thread t : threads) {
+                    if (!t.isAlive()) {
                         removes.add(t);
                     }
                 }
@@ -102,10 +100,9 @@ public class QueueManager implements Callable<Void> {
                     break;
                 }
 
-                RunQueue runQueue = new RunQueue(JobUtils.getJobConf(properties), queuePath, queue);
-                RunnableFuture<Void> runQueueThread = new FutureTask<Void>(runQueue);
-                new Thread(runQueueThread).start();
-                threads.add(runQueueThread);
+                Thread runQueue = new RunQueue(JobUtils.getJobConf(properties), queuePath, queue);
+                runQueue.start();
+                threads.add(runQueue);
 
                 queue.setRun(true);
                 QueueUtils.registerQueue(queuePath, queue);
@@ -115,8 +112,6 @@ public class QueueManager implements Callable<Void> {
             log.error(e);
         }
 
-        log.info("QueueManager enb");
-
-        return null;
+        log.info("QueueManager end");
     }
 }

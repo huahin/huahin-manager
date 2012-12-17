@@ -22,6 +22,8 @@
               value="${yarn.web-proxy.address}"/>
     <property name="mapreduceJobhistoryWebappAddress"
               value="${mapreduce.jobhistory.webapp.address}"/>
+    <property name="yarnApplicationClasspath"
+              value="${yarn.application.classpath}"/>
     <property name="jobQueueLimit"
               value="${job.queue.limit}"/>
   </bean>

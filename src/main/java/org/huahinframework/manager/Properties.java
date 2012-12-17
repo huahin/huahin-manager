@@ -30,6 +30,7 @@ public class Properties {
     private String yarnNodemanagerWebappAddress;
     private String yarnWebProxyAddress;
     private String mapreduceJobhistoryWebappAddress;
+    private String yarnApplicationClasspath;
     private int jobQueueLimit;
 
     /**
@@ -137,6 +138,20 @@ public class Properties {
     public void setMapreduceJobhistoryWebappAddress(
             String mapreduceJobhistoryWebappAddress) {
         this.mapreduceJobhistoryWebappAddress = mapreduceJobhistoryWebappAddress;
+    }
+
+    /**
+     * @return the yarnApplicationClasspath
+     */
+    public String getYarnApplicationClasspath() {
+        return yarnApplicationClasspath;
+    }
+
+    /**
+     * @param yarnApplicationClasspath the yarnApplicationClasspath to set
+     */
+    public void setYarnApplicationClasspath(String yarnApplicationClasspath) {
+        this.yarnApplicationClasspath = yarnApplicationClasspath;
     }
 
     /**

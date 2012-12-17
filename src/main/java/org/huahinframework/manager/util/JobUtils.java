@@ -70,6 +70,12 @@ public class JobUtils {
         jobConf.set(YarnConfiguration.RM_ADDRESS, properties.getRmAddress());
         jobConf.set(MAPREDUCE_JOBHISTORY_ADDRESS, properties.getMapreduceJobhistoryAddress());
         jobConf.set(CommonConfigurationKeysPublic.FS_DEFAULT_NAME_KEY, properties.getFsDefaultFS());
+        if (properties.getYarnApplicationClasspath() != null &&
+            !properties.getYarnApplicationClasspath().isEmpty()) {
+            jobConf.set(YarnConfiguration.YARN_APPLICATION_CLASSPATH,
+                        properties.getYarnApplicationClasspath());
+        }
+
         return jobConf;
     }
 
