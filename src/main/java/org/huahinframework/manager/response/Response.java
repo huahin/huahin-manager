@@ -50,4 +50,26 @@ public class Response {
     public static final String QUEUE_CLASS = "class";
     public static final String QUEUE_ARGUMENTS = "argumetns";
     public static final String QUEUE_MESSAGE = "message";
+
+    public static final String ID = "id";
+    public static final String FINAL_STATUS = "finalStatus";
+    public static final String TRACKING_UI = "trackingUI";
+    public static final String DIAGNOSTICS = "diagnostics";
+    public static final String FINISHED_TIME = "finishTime";
+    public static final String ELAPSED_TIME = "elapsedTime";
+    public static final String APP  = "app";
+    public static final String APPS = "apps";
+
+    public static final String NUM_NODE_MANAGERS = "numNodeMangers";
+    public static final String NODES = "nodes";
+    public static final String HTTP_ADDRESS = "httpAddress";
+    public static final String NUM_CONTAINERS = "numContainers";
+    public static final String RACK_NAME = "rackName";
+    public static final String CAPABILITY = "capability";
+    public static final String HEALTH_REPORT = "healthReport";
+    public static final String IS_NODE_HEALTHY = "isNodeHealthy";
+    public static final String LAST_HEALTH_REPORT_TIME = "lastHealthReportTime";
+    public static final String NODE_ID = "nodeId";
+    public static final String NODE_STATE = "nodeState";
+    public static final String USED = "used";
 }
