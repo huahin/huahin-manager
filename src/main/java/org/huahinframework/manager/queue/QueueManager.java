@@ -100,7 +100,23 @@ public class QueueManager extends Thread {
                     break;
                 }
 
-                Thread runQueue = new RunQueue(JobUtils.getJobConf(properties), queuePath, queue);
+                if (queue.getType() == Queue.TYPE_HIVE && properties.getHiveserver() == null) {
+                    queue.setRun(true);
+                    queue.setMessage("hiveserver not found.");
+                    QueueUtils.registerQueue(queuePath, queue);
+                    continue;
+                }
+
+                Thread runQueue = null;
+                switch (queue.getType()) {
+                case Queue.TYPE_JAR:
+                    runQueue = new RunQueue(JobUtils.getJobConf(properties), queuePath, queue);
+                    break;
+                case Queue.TYPE_HIVE:
+                    runQueue = new RunHiveQueue(properties, queuePath, queue);
+                    break;
+                }
+
                 runQueue.start();
                 threads.add(runQueue);
 

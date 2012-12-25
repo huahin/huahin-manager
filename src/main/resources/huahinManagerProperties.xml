@@ -24,6 +24,10 @@
               value="${mapreduce.jobhistory.webapp.address}"/>
     <property name="yarnApplicationClasspath"
               value="${yarn.application.classpath}"/>
+    <property name="hiveserver"
+              value="${hiveserver}"/>
+    <property name="hiveserverVersion"
+              value="${hiveserver.version}"/>
     <property name="jobQueueLimit"
               value="${job.queue.limit}"/>
   </bean>

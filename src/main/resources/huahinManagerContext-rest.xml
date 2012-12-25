@@ -25,4 +25,11 @@
       <ref bean="properties" />
     </property>
   </bean>
+  <bean id="hiveService"
+        class="org.huahinframework.manager.rest.service.HiveService"
+        init-method="init">
+    <property name="properties">
+      <ref bean="properties" />
+    </property>
+  </bean>
 </beans>

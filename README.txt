@@ -35,6 +35,16 @@ For 0.2.X example:
   yarn.resourcemanager.address=localhost:8032
   mapreduce.jobhistory.address=localhost:10020
   fs.defaultFS=hdfs://localhost:8020
+  yarn.resourcemanager.webapp.address=localhost:8088
+  yarn.nodemanager.webapp.address=localhost:8042
+  yarn.web-proxy.address=localhost:8100
+  mapreduce.jobhistory.webapp.address=localhost:19888
+  # option: if you do not set it will be the default.
+  yarn.application.classpath=$HADOOP_CONF_DIR,$HADOOP_COMMON_HOME/*,...
+  # option
+  hiveserver=localhost:10000
+  # option
+  hiveserver.version=2
   job.queue.limit=2
 
 When you change the boot port, edit the huahin-manager-x.x.x/conf/port file.
@@ -145,3 +155,77 @@ Kill queue for ID.
   For example:
   ~ $ curl -X DELETE "http://<HOSTNAME>:9010/queue/kill/Q_20120608180129594"
 
+
+-----------------------------------------------------------------------------
+For 0.2.X
+
+-----------------------------------------------------------------------------
+Huahin Manager REST Job APIs
+
+Register Hive job
+  ARGUMENTS specifies the JSON. <script> specifies the hive query.
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/job/hive/register -F ARGUMENTS='{"script":"<script>"}'
+
+  For example:
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/job/hive/register \
+  -F ARGUMENTS='{"script":"insert overwrite directory '\''/tmp/out'\'' select word, count(word) as cnt from words group by word"}'
+
+
+-----------------------------------------------------------------------------
+Huahin Manager REST YARN APIs
+http://hadoop.apache.org/docs/r2.0.2-alpha/hadoop-yarn/hadoop-yarn-site/WebServicesIntro.html
+
+ResourceManager REST API's
+  For example:
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/api/rm/ws/v1/cluster/info"
+
+NodeManager REST API's
+  For example:
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/api/nm/ws/v1/node/info"
+
+MapReduce Application Master REST API's
+  For example:
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/api/proxy/{appid}/ws/v1/mapreduce/info"
+
+History Server REST API's
+  For example:
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/api/history/ws/v1/history/info"
+
+
+-----------------------------------------------------------------------------
+Huahin Manager REST Application APIs
+
+Get all application list.
+  For example:
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/application/list"
+
+Get cluster info.
+  For example:
+  ~ $ curl -X GET "http://<HOSTNAME>:9010/application/cluster"
+
+Kill application for ID.
+  <appid> specifies the application ID.
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/application/kill/<appid>"
+
+  For example:
+  ~ $ curl -X DELETE "http://<HOSTNAME>:9010/application/kill/application_1326232085508_0003"
+
+
+-----------------------------------------------------------------------------
+Huahin Manager REST Hive APIs
+
+Execution of the query does not return value
+  ARGUMENTS specifies the JSON. <query> specifies the hive query.
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute -F ARGUMENTS='{"query":"<query>"}'
+
+  For example:
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute \
+  -F ARGUMENTS='{"query":"create table foo(bar string)"}'
+
+Query execution with return value
+  ARGUMENTS specifies the JSON. <query> specifies the hive query.
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/executeQuery -F ARGUMENTS='{"query":"<query>"}'
+
+  For example:
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/executeQuery \
+  -F ARGUMENTS='{"query":"select word, count(word) as cnt from words group by word"}'

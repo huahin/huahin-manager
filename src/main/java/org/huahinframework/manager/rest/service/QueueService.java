@@ -66,10 +66,12 @@ public class QueueService extends Service {
             for (Entry<String, Queue> entry : queueMap.entrySet()) {
                 Queue q = entry.getValue();
                 Map<String, Object> m = new HashMap<String, Object>();
+                m.put(Response.QUEUE_TYPE, Queue.toType(q.getType()));
                 m.put(Response.QUEUE_ID, q.getId());
                 m.put(Response.QUEUE_DATE, q.getDate().toString());
                 m.put(Response.QUEUE_JAR, q.getJarFileName());
                 m.put(Response.QUEUE_CLASS, q.getClazz());
+                m.put(Response.QUEUE_SCRIPT, q.getScript());
                 m.put(Response.QUEUE_ARGUMENTS, q.getArguments());
 
                 l.add(new JSONObject(m));
@@ -94,7 +96,7 @@ public class QueueService extends Service {
     @Path("/statuses")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public JSONArray statuses() {
+    public JSONArray statuses(@PathParam(QUEUEID) String queueId) {
         JSONArray jsonArray = null;
 
         try {
@@ -103,13 +105,14 @@ public class QueueService extends Service {
             for (Entry<String, Queue> entry : queueMap.entrySet()) {
                 Queue q = entry.getValue();
                 Map<String, Object> m = new HashMap<String, Object>();
+                m.put(Response.QUEUE_TYPE, Queue.toType(q.getType()));
                 m.put(Response.QUEUE_ID, q.getId());
                 m.put(Response.QUEUE_DATE, q.getDate().toString());
                 m.put(Response.QUEUE_JAR, q.getJarFileName());
                 m.put(Response.QUEUE_CLASS, q.getClazz());
+                m.put(Response.QUEUE_SCRIPT, q.getScript());
                 m.put(Response.QUEUE_ARGUMENTS, q.getArguments());
-                m.put(Response.QUEUE_MESSAGE,
-                        q.getMessage() == null ? "SUCCESS" : q.getMessage());
+                m.put(Response.QUEUE_MESSAGE, q.getMessage());
 
                 l.add(new JSONObject(m));
             }

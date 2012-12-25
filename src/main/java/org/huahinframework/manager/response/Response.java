@@ -44,10 +44,12 @@ public class Response {
     public static final String TRACKING_URL = "trackingURL";
     public static final String CONFIGURATION = "configuration";
 
+    public static final String QUEUE_TYPE = "type";
     public static final String QUEUE_ID = "queueid";
     public static final String QUEUE_DATE = "date";
     public static final String QUEUE_JAR = "jar";
     public static final String QUEUE_CLASS = "class";
+    public static final String QUEUE_SCRIPT = "script";
     public static final String QUEUE_ARGUMENTS = "argumetns";
     public static final String QUEUE_MESSAGE = "message";
 

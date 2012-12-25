@@ -117,7 +117,7 @@ public class ApplicationService extends Service {
         return jsonObject;
     }
 
-    @Path("/get/cluster")
+    @Path("/cluster")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONObject getCluster() {

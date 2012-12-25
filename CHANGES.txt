@@ -1,3 +1,8 @@
+0.2.0
+ * add: Application API
+ * add: supported execute query of Hive
+ * add: Hive queue management
+
 0.2.0-beta
  * supported CDH4
 

@@ -15,6 +15,7 @@
         <ref bean="queueService" />
         <ref bean="yarnAPIService" />
         <ref bean="applicationService" />
+        <ref bean="hiveService" />
       </set>
     </property>
   </bean>

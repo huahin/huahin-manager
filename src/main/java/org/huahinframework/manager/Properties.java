@@ -31,6 +31,8 @@ public class Properties {
     private String yarnWebProxyAddress;
     private String mapreduceJobhistoryWebappAddress;
     private String yarnApplicationClasspath;
+    private String hiveserver;
+    private int hiveserverVersion;
     private int jobQueueLimit;
 
     /**
@@ -152,6 +154,34 @@ public class Properties {
      */
     public void setYarnApplicationClasspath(String yarnApplicationClasspath) {
         this.yarnApplicationClasspath = yarnApplicationClasspath;
+    }
+
+    /**
+     * @return the hiveserver
+     */
+    public String getHiveserver() {
+        return hiveserver;
+    }
+
+    /**
+     * @param hiveserver the hiveserver to set
+     */
+    public void setHiveserver(String hiveserver) {
+        this.hiveserver = hiveserver;
+    }
+
+    /**
+     * @return the hiveserverVersion
+     */
+    public int getHiveserverVersion() {
+        return hiveserverVersion;
+    }
+
+    /**
+     * @param hiveserverVersion the hiveserverVersion to set
+     */
+    public void setHiveserverVersion(int hiveserverVersion) {
+        this.hiveserverVersion = hiveserverVersion;
     }
 
     /**
