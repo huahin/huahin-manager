@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.huahinframework</groupId>
   <artifactId>huahin-manager</artifactId>
-  <version>0.2.0-beta</version>
+  <version>0.2.0</version>
   <packaging>jar</packaging>
 
   <name>huahin-manager</name>
@@ -69,6 +69,36 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
+  <profiles>
+    <profile>
+      <id>apache</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+        <hadoop.version>2.0.2-alpha</hadoop.version>
+        <hive.version>0.9.0</hive.version>
+        <thrift.version>0.7.0</thrift.version>
+        <bname>huahin-manager-a-${project.version}</bname>
+      </properties>
+    </profile>
+    <profile>
+      <id>cloudera</id>
+      <repositories>
+        <repository>
+          <id>cloudera</id>
+          <url>https://repository.cloudera.com/content/repositories/releases/</url>
+        </repository>
+      </repositories>
+      <properties>
+        <hadoop.version>2.0.0-cdh4.1.2</hadoop.version>
+        <hive.version>0.9.0-cdh4.1.2</hive.version>
+        <thrift.version>0.5.0-cdh</thrift.version>
+        <bname>huahin-manager-c-${project.version}</bname>
+      </properties>
+    </profile>
+  </profiles>
+
   <build>
     <resources>
       <resource>
@@ -95,6 +125,17 @@
           <encoding>UTF-8</encoding>
           <source>1.6</source>
           <target>1.6</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.2</version>
+        <configuration>
+          <finalName>${bname}</finalName>
+          <appendAssemblyId>false</appendAssemblyId>
+          <attach>false</attach>
+          <descriptor>src/main/assembly/distribution.xml</descriptor>
         </configuration>
       </plugin>
       <plugin>
@@ -127,62 +168,6 @@
       </plugin>
     </plugins>
   </build>
-
-  <profiles>
-    <profile>
-      <id>apache</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <properties>
-        <hadoop.version>2.0.2-alpha</hadoop.version>
-        <hive.version>0.9.0</hive.version>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.2.2</version>
-            <configuration>
-              <finalName>huahin-manager-a-${project.version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-              <attach>false</attach>
-              <descriptor>src/main/assembly/distribution.xml</descriptor>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <profile>
-      <id>cloudera</id>
-      <repositories>
-        <repository>
-          <id>cloudera</id>
-          <url>https://repository.cloudera.com/content/repositories/releases/</url>
-        </repository>
-      </repositories>
-      <properties>
-        <hadoop.version>2.0.0-cdh4.1.2</hadoop.version>
-        <hive.version>0.9.0-cdh4.1.2</hive.version>
-      </properties>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>2.2.2</version>
-            <configuration>
-              <finalName>huahin-manager-c-${project.version}</finalName>
-              <appendAssemblyId>false</appendAssemblyId>
-              <attach>false</attach>
-              <descriptor>src/main/assembly/distribution.xml</descriptor>
-            </configuration>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
   <dependencies>
     <dependency>
@@ -495,51 +480,6 @@
     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-jdbc</artifactId>
-      <version>${hive.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.jdo</groupId>
-          <artifactId>jdo2-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-metastore</artifactId>
-      <version>${hive.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.jdo</groupId>
-          <artifactId>jdo2-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-service</artifactId>
-      <version>${hive.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-core</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>javax.jdo</groupId>
-          <artifactId>jdo2-api</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-exec</artifactId>
       <version>${hive.version}</version>
       <exclusions>
         <exclusion>

@@ -163,6 +163,7 @@ For 0.2.X
 Huahin Manager REST Job APIs
 
 Register Hive job
+  Because they are executed in the queue, the return value must be a table or HDFS.
   ARGUMENTS specifies the JSON. <script> specifies the hive query.
   ~ $ curl -X POST "http://<HOSTNAME>:9010/job/hive/register -F ARGUMENTS='{"script":"<script>"}'
 
@@ -223,6 +224,7 @@ Execution of the query does not return value
   -F ARGUMENTS='{"query":"create table foo(bar string)"}'
 
 Query execution with return value
+  The return value is returned in the stream.
   ARGUMENTS specifies the JSON. <query> specifies the hive query.
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/executeQuery -F ARGUMENTS='{"query":"<query>"}'
 
