@@ -17,18 +17,44 @@
  */
 package org.huahinframework.manager.rest.service;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import org.apache.hadoop.mapred.JobConf;
 import org.huahinframework.manager.Properties;
 import org.huahinframework.manager.queue.QueueUtils;
 import org.huahinframework.manager.util.JobUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
  */
 public abstract class Service {
-    private Properties properties;
+    protected Properties properties;
     private String queuePath;
     private String jarPath;
+
+    /**
+     * @param in
+     * @return {@link JSONObject}
+     * @throws IOException
+     * @throws JSONException
+     */
+    protected JSONObject createJSON(InputStream in)
+            throws IOException, JSONException {
+        BufferedReader reader =
+                new BufferedReader(new InputStreamReader(in, "UTF-8"));
+        StringBuilder sb = new StringBuilder();
+        String str;
+        while ((str = reader.readLine()) != null) {
+            sb.append(str);
+        }
+
+        return new JSONObject(sb.toString());
+    }
 
     /**
      * @return {@link JobConf}

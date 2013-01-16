@@ -19,6 +19,7 @@ package org.huahinframework.manager.queue;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Map;
 
 /**
  *
@@ -26,14 +27,41 @@ import java.util.Date;
 public class Queue implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public static final int TYPE_JAR = 1;
+    public static final int TYPE_HIVE = 2;
+    public static final int TYPE_PIG = 3;
+
+    private static final Map<Integer, String >TYPE_MAP = new java.util.HashMap<Integer, String>();
+    static {
+        TYPE_MAP.put(TYPE_JAR, "jar");
+        TYPE_MAP.put(TYPE_HIVE, "hive");
+        TYPE_MAP.put(TYPE_PIG, "pig");
+    }
+
+    private int type;
     private String id;
     private Date date;
     private String jarFileName;
     private String clazz;
     private String[] arguments;
     private String jar;
+    private String script;
     private boolean run;
     private String message;
+
+    /**
+     * @return the type
+     */
+    public int getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(int type) {
+        this.type = type;
+    }
 
     /**
      * @return the id
@@ -120,6 +148,20 @@ public class Queue implements Serializable {
     }
 
     /**
+     * @return the script
+     */
+    public String getScript() {
+        return script;
+    }
+
+    /**
+     * @param script the script to set
+     */
+    public void setScript(String script) {
+        this.script = script;
+    }
+
+    /**
      * @return the run
      */
     public boolean isRun() {
@@ -145,5 +187,13 @@ public class Queue implements Serializable {
      */
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    /**
+     * @param type
+     * @return type to string
+     */
+    public static String toType(int type) {
+        return TYPE_MAP.get(type);
     }
 }

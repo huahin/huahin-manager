@@ -17,9 +17,6 @@
  */
 package org.huahinframework.manager;
 
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.huahinframework.manager.queue.QueueManager;
@@ -67,9 +64,8 @@ public class Runner {
                 = new ClassPathXmlApplicationContext("huahinManagerProperties.xml");
             Properties properties = (Properties) applicationContext.getBean("properties");
 
-            QueueManager queueManager = new QueueManager(properties);
-            RunnableFuture<Void> queueManagerThread = new FutureTask<Void>(queueManager);
-            new Thread(queueManagerThread).start();
+            Thread queueManager = new QueueManager(properties);
+            queueManager.start();
 
             SelectChannelConnector connector = new SelectChannelConnector();
             connector.setPort(port);
@@ -84,7 +80,7 @@ public class Runner {
             server.addHandler(web);
             server.start();
             server.join();
-            queueManagerThread.get();
+            queueManager.join();
         } catch (Exception e) {
             log.error("huahin-manager aborted", e);
             System.exit(-1);

@@ -13,6 +13,8 @@
       <set>
         <ref bean="jobService" />
         <ref bean="queueService" />
+        <ref bean="hiveService" />
+        <ref bean="pigService" />
       </set>
     </property>
   </bean>

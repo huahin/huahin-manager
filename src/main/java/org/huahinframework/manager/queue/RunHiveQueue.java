@@ -17,32 +17,32 @@
  */
 package org.huahinframework.manager.queue;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.Statement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
 
 /**
  *
  */
-public class RunQueue extends Thread {
-    private static final Log log = LogFactory.getLog(RunQueue.class);
+public class RunHiveQueue extends Thread {
+    private static final Log log = LogFactory.getLog(RunHiveQueue.class);
 
-    private JobConf jobConf;
+    private static final String DRIVER_NAME = "org.apache.hadoop.hive.jdbc.HiveDriver";
+    private static final String CONNECTION_FORMAT = "jdbc:hive://%s/default";
+
+    private String hiveserver;
     private String queuePath;
     private Queue queue;
 
     /**
      * @param queue
      */
-    public RunQueue(JobConf jobConf, String queuePath, Queue queue) {
-        this.jobConf = jobConf;
+    public RunHiveQueue(String hiveserver, String queuePath, Queue queue) {
+        this.hiveserver = hiveserver;
         this.queuePath = queuePath;
         this.queue = queue;
     }
@@ -50,16 +50,13 @@ public class RunQueue extends Thread {
     /* (non-Javadoc)
      * @see java.lang.Thread#run()
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         try {
-            File jarFile = new File(queue.getJar());
-            URL[] urls = { jarFile.toURI().toURL() };
-            ClassLoader loader = URLClassLoader.newInstance(urls);
-            Class<Tool> clazz = (Class<Tool>) loader.loadClass(queue.getClazz());
-
-            ToolRunner.run(jobConf, clazz.newInstance(), queue.getArguments());
+            Class.forName(DRIVER_NAME);
+            Connection con = DriverManager.getConnection(String.format(CONNECTION_FORMAT, hiveserver), "", "");
+            Statement stmt = con.createStatement();
+            stmt.executeQuery(queue.getScript());
         } catch (Exception e) {
             queue.setMessage(e.toString());
             try {

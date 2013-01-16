@@ -17,49 +17,48 @@
  */
 package org.huahinframework.manager.queue;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
+import java.util.Properties;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.util.ToolRunner;
+import org.apache.pig.ExecType;
+import org.apache.pig.PigServer;
+import org.apache.pig.backend.hadoop.datastorage.ConfigurationUtil;
+import org.apache.pig.impl.util.PropertiesUtil;
+import org.huahinframework.manager.util.JobUtils;
 
 /**
  *
  */
-public class RunQueue extends Thread {
-    private static final Log log = LogFactory.getLog(RunQueue.class);
+public class RunPigQueue extends Thread {
+    private static final Log log = LogFactory.getLog(RunPigQueue.class);
 
-    private JobConf jobConf;
+    private Properties properties = new Properties();
     private String queuePath;
     private Queue queue;
 
     /**
+     * @param properties
+     * @param queuePath
      * @param queue
      */
-    public RunQueue(JobConf jobConf, String queuePath, Queue queue) {
-        this.jobConf = jobConf;
+    public RunPigQueue(org.huahinframework.manager.Properties properties, String queuePath, Queue queue) {
         this.queuePath = queuePath;
         this.queue = queue;
+        PropertiesUtil.loadDefaultProperties(this.properties);
+        this.properties.putAll(ConfigurationUtil.toProperties(JobUtils.getJobConf(properties)));
     }
 
     /* (non-Javadoc)
      * @see java.lang.Thread#run()
      */
-    @SuppressWarnings("unchecked")
     @Override
     public void run() {
         try {
-            File jarFile = new File(queue.getJar());
-            URL[] urls = { jarFile.toURI().toURL() };
-            ClassLoader loader = URLClassLoader.newInstance(urls);
-            Class<Tool> clazz = (Class<Tool>) loader.loadClass(queue.getClazz());
-
-            ToolRunner.run(jobConf, clazz.newInstance(), queue.getArguments());
+            PigServer server = new PigServer(ExecType.MAPREDUCE, properties);
+            server.registerQuery(queue.getScript());
+            server.shutdown();
         } catch (Exception e) {
             queue.setMessage(e.toString());
             try {
