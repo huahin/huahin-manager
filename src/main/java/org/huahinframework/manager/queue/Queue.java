@@ -29,11 +29,13 @@ public class Queue implements Serializable {
 
     public static final int TYPE_JAR = 1;
     public static final int TYPE_HIVE = 2;
+    public static final int TYPE_PIG = 3;
 
     private static final Map<Integer, String >TYPE_MAP = new java.util.HashMap<Integer, String>();
     static {
         TYPE_MAP.put(TYPE_JAR, "jar");
         TYPE_MAP.put(TYPE_HIVE, "hive");
+        TYPE_MAP.put(TYPE_PIG, "pig");
     }
 
     private int type;

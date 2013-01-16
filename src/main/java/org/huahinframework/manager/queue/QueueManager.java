@@ -115,6 +115,9 @@ public class QueueManager extends Thread {
                 case Queue.TYPE_HIVE:
                     runQueue = new RunHiveQueue(properties, queuePath, queue);
                     break;
+                case Queue.TYPE_PIG:
+                    runQueue = new RunPigQueue(properties, queuePath, queue);
+                    break;
                 }
 
                 runQueue.start();

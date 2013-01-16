@@ -318,12 +318,32 @@ public class JobService extends Service {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     public JSONObject registerHive(InMultiPart inMP) {
+        return registerScripts(Queue.TYPE_HIVE, inMP);
+    }
+
+    /**
+     * @param inMP
+     * @return {@link JSONObject}
+     */
+    @Path("/register/pig")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public JSONObject registerPig(InMultiPart inMP) {
+        return registerScripts(Queue.TYPE_PIG, inMP);
+    }
+
+    /**
+     * @param type
+     * @param inMP
+     * @return JSONObject
+     */
+    public JSONObject registerScripts(int type, InMultiPart inMP) {
         Map<String, String> status = new HashMap<String, String>();
         status.put(Response.STATUS, "accepted");
 
         try {
             Queue queue = new Queue();
-            queue.setType(Queue.TYPE_HIVE);
+            queue.setType(type);
             synchronized (queue) {
                 queue.setDate(new Date());
             }
