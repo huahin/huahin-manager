@@ -17,12 +17,10 @@
  */
 package org.huahinframework.manager.rest.service;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,6 +72,7 @@ public class JobService extends Service {
     private static final String FORM_DATA_NAME_ARGUMENTS = "form-data; name=\"ARGUMENTS\"";
 
     private static final String JSON_CLASS = "class";
+    private static final String JSON_SCRIPT = "script";
     private static final String JSON_ARGUMENTS = "arguments";
 
     private static final int JAR = 1;
@@ -241,6 +240,7 @@ public class JobService extends Service {
 
         try {
             Queue queue = new Queue();
+            queue.setType(Queue.TYPE_JAR);
             synchronized (queue) {
                 queue.setDate(new Date());
             }
@@ -305,6 +305,65 @@ public class JobService extends Service {
     }
 
     /**
+     * @param inMP
+     * @return {@link JSONObject}
+     */
+    @Path("/register/hive")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public JSONObject registerHive(InMultiPart inMP) {
+        return registerScripts(Queue.TYPE_HIVE, inMP);
+    }
+
+    /**
+     * @param inMP
+     * @return {@link JSONObject}
+     */
+    @Path("/register/pig")
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    public JSONObject registerPig(InMultiPart inMP) {
+        return registerScripts(Queue.TYPE_PIG, inMP);
+    }
+
+    /**
+     * @param type
+     * @param inMP
+     * @return JSONObject
+     */
+    private JSONObject registerScripts(int type, InMultiPart inMP) {
+        Map<String, String> status = new HashMap<String, String>();
+        status.put(Response.STATUS, "accepted");
+
+        try {
+            Queue queue = new Queue();
+            queue.setType(type);
+            synchronized (queue) {
+                queue.setDate(new Date());
+            }
+
+            if (!inMP.hasNext()) {
+                status.put(Response.STATUS, "arguments error");
+                return new JSONObject(status);
+            }
+
+            InPart part = inMP.next();
+
+            InputStream in = part.getInputStream();
+            JSONObject argument = createJSON(in);
+            queue.setScript(argument.getString(JSON_SCRIPT));
+
+            QueueUtils.registerQueue(getQueuePath(), queue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error(e);
+            status.put(Response.STATUS, e.getMessage());
+        }
+
+        return new JSONObject(status);
+    }
+
+    /**
      * @param in
      * @param jarFile
      * @throws IOException
@@ -318,25 +377,6 @@ public class JobService extends Service {
             out.write(buf, 0, len);
         }
         out.close();
-    }
-
-    /**
-     * @param in
-     * @return {@link JSONObject}
-     * @throws IOException
-     * @throws JSONException
-     */
-    private JSONObject createJSON(InputStream in)
-            throws IOException, JSONException {
-        BufferedReader reader =
-                new BufferedReader(new InputStreamReader(in, "UTF-8"));
-        StringBuilder sb = new StringBuilder();
-        String str;
-        while ((str = reader.readLine()) != null) {
-            sb.append(str);
-        }
-
-        return new JSONObject(sb.toString());
     }
 
     /**

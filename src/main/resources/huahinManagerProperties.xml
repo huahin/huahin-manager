@@ -14,5 +14,7 @@
               value="${fs.default.name}"/>
     <property name="jobQueueLimit"
               value="${job.queue.limit}"/>
+    <property name="hiveserver"
+              value="${hiveserver}"/>
   </bean>
 </beans>

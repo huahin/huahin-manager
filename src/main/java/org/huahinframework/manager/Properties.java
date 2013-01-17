@@ -25,6 +25,7 @@ public class Properties {
 
     private String mapredJobTracker;
     private String fsDefaultName;
+    private String hiveserver;
     private int jobQueueLimit;
 
     /**
@@ -74,5 +75,19 @@ public class Properties {
      */
     public void setJobQueueLimit(int jobQueueLimit) {
         this.jobQueueLimit = jobQueueLimit;
+    }
+
+    /**
+     * @return the hiveserver
+     */
+    public String getHiveserver() {
+        return hiveserver;
+    }
+
+    /**
+     * @param hiveserver the hiveserver to set
+     */
+    public void setHiveserver(String hiveserver) {
+        this.hiveserver = hiveserver;
     }
 }

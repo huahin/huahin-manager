@@ -21,9 +21,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.RunnableFuture;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -35,7 +32,7 @@ import org.huahinframework.manager.util.JobUtils;
 /**
  *
  */
-public class QueueManager implements Callable<Void> {
+public class QueueManager extends Thread {
     private static final Log log = LogFactory.getLog(QueueManager.class);
 
     private static final int POLLING_SECOND = (30 * 1000);
@@ -44,6 +41,7 @@ public class QueueManager implements Callable<Void> {
     private JobConf jobConf;
     private int jobQueueLimit;
     private String queuePath;
+    private String hiveserver;
 
     /**
      * @param properties
@@ -53,17 +51,18 @@ public class QueueManager implements Callable<Void> {
         this.jobConf = JobUtils.getJobConf(properties);
         this.jobQueueLimit = properties.getJobQueueLimit();
         this.queuePath = QueueUtils.getQueuePath(properties.getHuahinHome());
+        this.hiveserver = properties.getHiveserver();
     }
 
     /* (non-Javadoc)
-     * @see java.util.concurrent.Callable#call()
+     * @see java.lang.Thread#run()
      */
     @Override
-    public Void call() throws Exception {
+    public void run() {
         log.info("QueueManager start");
 
         try {
-            List<RunnableFuture<Void>> threads = new ArrayList<RunnableFuture<Void>>();
+            List<Thread> threads = new ArrayList<Thread>();
             for (;;) {
                 Map<String, Queue> runQueueMap = QueueUtils.readRemoveQueue(queuePath);
                 for (Entry<String, Queue> entry : runQueueMap.entrySet()) {
@@ -83,9 +82,9 @@ public class QueueManager implements Callable<Void> {
                     continue;
                 }
 
-                List<RunnableFuture<Void>> removes = new ArrayList<RunnableFuture<Void>>();
-                for (RunnableFuture<Void> t : threads) {
-                    if (t.isDone()) {
+                List<Thread> removes = new ArrayList<Thread>();
+                for (Thread t : threads) {
+                    if (!t.isAlive()) {
                         removes.add(t);
                     }
                 }
@@ -102,10 +101,28 @@ public class QueueManager implements Callable<Void> {
                     break;
                 }
 
-                RunQueue runQueue = new RunQueue(JobUtils.getJobConf(properties), queuePath, queue);
-                RunnableFuture<Void> runQueueThread = new FutureTask<Void>(runQueue);
-                new Thread(runQueueThread).start();
-                threads.add(runQueueThread);
+                if (queue.getType() == Queue.TYPE_HIVE && hiveserver == null) {
+                    queue.setRun(true);
+                    queue.setMessage("hiveserver not found.");
+                    QueueUtils.registerQueue(queuePath, queue);
+                    continue;
+                }
+
+                Thread runQueue = null;
+                switch (queue.getType()) {
+                case Queue.TYPE_JAR:
+                    runQueue = new RunQueue(JobUtils.getJobConf(properties), queuePath, queue);
+                    break;
+                case Queue.TYPE_HIVE:
+                    runQueue = new RunHiveQueue(hiveserver, queuePath, queue);
+                    break;
+                case Queue.TYPE_PIG:
+                    runQueue = new RunPigQueue(properties, queuePath, queue);
+                    break;
+                }
+
+                runQueue.start();
+                threads.add(runQueue);
 
                 queue.setRun(true);
                 QueueUtils.registerQueue(queuePath, queue);
@@ -114,7 +131,5 @@ public class QueueManager implements Callable<Void> {
         }
 
         log.info("QueueManager end");
-
-        return null;
     }
 }
