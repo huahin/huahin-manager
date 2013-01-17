@@ -214,7 +214,6 @@ Execution of the store
   ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store \
   -F ARGUMENTS='{"query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
 
-
 -----------------------------------------------------------------------------
 For 0.2.X
 -----------------------------------------------------------------------------
@@ -236,7 +235,6 @@ MapReduce Application Master REST API's
 History Server REST API's
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/api/history/ws/v1/history/info"
-
 
 -----------------------------------------------------------------------------
 Huahin Manager REST Application APIs
