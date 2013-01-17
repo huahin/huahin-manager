@@ -175,26 +175,6 @@ Kill queue for ID.
   ~ $ curl -X DELETE "http://<HOSTNAME>:9010/queue/kill/Q_20120608180129594"
 
 -----------------------------------------------------------------------------
-Huahin Manager REST Pig APIs
-
-Execution of the dump
-  ARGUMENTS specifies the JSON. <variable> is that specifies the dump. <query> specifies the Pig Latin.
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump -F ARGUMENTS='{"dump":"<variable>","query":"<query>"}'
-
-  For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump \
-  -F ARGUMENTS='{"query":"create table foo(bar string)"}'
-
-Execution of the store
-  The return value is returned in the stream.
-  ARGUMENTS specifies the JSON. <query> specifies the Pig Latin.
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store -F ARGUMENTS='{"query":"<query>"}'
-
-  For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store \
-  -F ARGUMENTS='{"query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
-
------------------------------------------------------------------------------
 Huahin Manager REST Hive APIs
 
 Execution of the query does not return value
@@ -214,6 +194,25 @@ Query execution with return value
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/executeQuery \
   -F ARGUMENTS='{"query":"select word, count(word) as cnt from words group by word"}'
 
+-----------------------------------------------------------------------------
+Huahin Manager REST Pig APIs
+
+Execution of the dump
+  ARGUMENTS specifies the JSON. <variable> is that specifies the dump. <query> specifies the Pig Latin.
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump -F ARGUMENTS='{"dump":"<variable>","query":"<query>"}'
+
+  For example:
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump \
+  -F ARGUMENTS='{"dump":"d","query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;"}'
+
+Execution of the store
+  The return value is returned in the stream.
+  ARGUMENTS specifies the JSON. <query> specifies the Pig Latin.
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store -F ARGUMENTS='{"query":"<query>"}'
+
+  For example:
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store \
+  -F ARGUMENTS='{"query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
 
 -----------------------------------------------------------------------------
 For 0.2.X
@@ -236,7 +235,6 @@ MapReduce Application Master REST API's
 History Server REST API's
   For example:
   ~ $ curl -X GET "http://<HOSTNAME>:9010/api/history/ws/v1/history/info"
-
 
 -----------------------------------------------------------------------------
 Huahin Manager REST Application APIs
