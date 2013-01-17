@@ -378,7 +378,7 @@ ARGUMENTS specifies the JSON. {variable} is that specifies the dump. {query} spe
 <p>For example:</p>
 
 <pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/pig/dump \
--F ARGUMENTS='{"dump":"d","query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
+-F ARGUMENTS='{"dump":"d","query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;"}'
 </code></pre>
 
 <p><br></p>
