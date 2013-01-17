@@ -26,9 +26,9 @@ set fs.default.name property to the NameNode URI, and set job.queue.limit proper
 job queue limit is 0, does not manage the queue.
 For example:
 
-  mapred.job.tracker=localhost:9001
-  fs.default.name=hdfs://localhost:9000
-  hiveserver=localhost:10000 # option
+  mapred.job.tracker=jobtracker:9001
+  fs.default.name=hdfs://namenode:9000
+  hiveserver=hiveserver:10000 # option
   job.queue.limit=2
 
 When you change the boot port, edit the huahin-manager-x.x.x/conf/port file.
@@ -160,7 +160,7 @@ Kill queue for ID.
 -----------------------------------------------------------------------------
 Huahin Manager REST Hive APIs
 
-Execution of the query does not return value
+Execution of the query. If it have a return value, it will be returned along with the number of executed query.
   ARGUMENTS specifies the JSON. <query> specifies the hive query.
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute -F ARGUMENTS='{"query":"<query>"}'
 
@@ -168,6 +168,11 @@ Execution of the query does not return value
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute \
   -F ARGUMENTS='{"query":"create table foo(bar string)"}'
 
+  ‾ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute ¥
+  -F ARGUMENTS='{"query":"create table foo(bar string); insert overwrite table foo select * from words limit 100;"}'
+
+** Notice **
+This method is deprecate.
 Query execution with return value
   The return value is returned in the stream.
   ARGUMENTS specifies the JSON. <query> specifies the hive query.
@@ -186,7 +191,7 @@ Execution of the dump
 
   For example:
   ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump \
-  -F ARGUMENTS='{"query":"create table foo(bar string)"}'
+  -F ARGUMENTS='{"dump":"d","query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;"}'
 
 Execution of the store
   The return value is returned in the stream.

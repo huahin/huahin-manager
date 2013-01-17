@@ -1,3 +1,6 @@
+0.1.5
+ * update: Multiple execution of Hive queries
+
 0.1.4
  * add: supported execute query of Hive
  * add: Hive queue management

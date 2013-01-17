@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.huahinframework</groupId>
   <artifactId>huahin-manager</artifactId>
-  <version>0.1.4</version>
+  <version>0.1.5</version>
   <packaging>jar</packaging>
 
   <name>huahin-manager</name>
@@ -78,8 +78,8 @@
       <properties>
         <hadoop.core.version>1.0.4</hadoop.core.version>
         <hive.groupId>org.apache.hive</hive.groupId>
-        <hive.version>0.9.0</hive.version>
-        <pig.version>0.10.1</pig.version>
+        <hive.version>0.10.0</hive.version>
+        <pig.version>0.11.0</pig.version>
         <bname>huahin-manager-a-${project.version}</bname>
       </properties>
     </profile>
