@@ -32,4 +32,11 @@
       <ref bean="properties" />
     </property>
   </bean>
+  <bean id="pigService"
+        class="org.huahinframework.manager.rest.service.PigService"
+        init-method="init">
+    <property name="properties">
+      <ref bean="properties" />
+    </property>
+  </bean>
 </beans>

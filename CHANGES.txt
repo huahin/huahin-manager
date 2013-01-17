@@ -1,3 +1,7 @@
+0.2.1
+ * add: supported pig
+ * add: Pig queue management
+
 0.2.0
  * add: Application API
  * add: supported execute query of Hive

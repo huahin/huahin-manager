@@ -16,6 +16,7 @@
         <ref bean="yarnAPIService" />
         <ref bean="applicationService" />
         <ref bean="hiveService" />
+        <ref bean="pigService" />
       </set>
     </property>
   </bean>
