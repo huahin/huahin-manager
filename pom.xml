@@ -76,10 +76,10 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
-        <hadoop.version>2.0.2-alpha</hadoop.version>
-        <hive.version>0.9.0</hive.version>
-        <thrift.version>0.7.0</thrift.version>
-        <pig.version>0.10.1</pig.version>
+        <hadoop.version>2.0.3-alpha</hadoop.version>
+        <hive.version>0.10.0</hive.version>
+        <thrift.version>0.9.0</thrift.version>
+        <pig.version>0.11.0</pig.version>
         <bname>huahin-manager-a-${project.version}</bname>
       </properties>
     </profile>
@@ -92,10 +92,10 @@
         </repository>
       </repositories>
       <properties>
-        <hadoop.version>2.0.0-cdh4.1.2</hadoop.version>
-        <hive.version>0.9.0-cdh4.1.2</hive.version>
-        <thrift.version>0.5.0-cdh</thrift.version>
-        <pig.version>0.10.0-cdh4.1.2</pig.version>
+        <hadoop.version>2.0.0-cdh4.2.0</hadoop.version>
+        <hive.version>0.10.0-cdh4.2.0</hive.version>
+        <thrift.version>0.9.0</thrift.version>
+        <pig.version>0.10.0-cdh4.2.0</pig.version>
         <bname>huahin-manager-c-${project.version}</bname>
       </properties>
     </profile>
