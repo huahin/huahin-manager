@@ -8,13 +8,15 @@
   </bean>
 
   <bean id="properties" class="org.huahinframework.manager.Properties">
-    <property name="mapredJobTracker"
-              value="${mapred.job.tracker}"/>
-    <property name="fsDefaultName"
-              value="${fs.default.name}"/>
-    <property name="jobQueueLimit"
-              value="${job.queue.limit}"/>
+    <property name="mapreduceJobtrackerAddress"
+              value="${mapreduce.jobtracker.address}"/>
+    <property name="fsDefaultFS"
+              value="${fs.defaultFS}"/>
     <property name="hiveserver"
               value="${hiveserver}"/>
+    <property name="hiveserverVersion"
+              value="${hiveserver.version}"/>
+    <property name="jobQueueLimit"
+              value="${job.queue.limit}"/>
   </bean>
 </beans>

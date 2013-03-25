@@ -57,8 +57,11 @@ import org.json.JSONObject;
 public class JobUtils {
     private static final Log log = LogFactory.getLog(JobUtils.class);
 
+    public static final String MAPREDUCE_JOBTRACKER_ADDRESS = "mapreduce.jobtracker.address";
     public static final String MAPRED_JOB_TRACKER = "mapred.job.tracker";
-    public static final String FS_DEFAULT_NAME = "fs.default.name";
+    public static final String FRAMEWORK_NAME = "mapreduce.framework.name";
+    public static final String CLASSIC_FRAMEWORK_NAME = "classic";
+    public static final String FS_DEFAULT_FS = "fs.defaultFS";
 
     public static final int ALL = -999;
 
@@ -83,8 +86,10 @@ public class JobUtils {
      */
     public static JobConf getJobConf(Properties properties) {
         JobConf jobConf = new JobConf();
-        jobConf.set(JobUtils.MAPRED_JOB_TRACKER, properties.getMapredJobTracker());
-        jobConf.set(JobUtils.FS_DEFAULT_NAME, properties.getFsDefaultName());
+        jobConf.set(MAPREDUCE_JOBTRACKER_ADDRESS, properties.getMapreduceJobtrackerAddress());
+        jobConf.set(MAPRED_JOB_TRACKER, properties.getMapreduceJobtrackerAddress());
+        jobConf.set(FRAMEWORK_NAME, CLASSIC_FRAMEWORK_NAME);
+        jobConf.set(FS_DEFAULT_FS, properties.getFsDefaultFS());
         return jobConf;
     }
 
@@ -122,11 +127,13 @@ public class JobUtils {
         JobClient jobClient = new JobClient(conf);
 
         JobStatus[] jobStatuses = jobClient.getAllJobs();
-        for (JobStatus jobStatus : jobStatuses) {
-            if (state == ALL || state == jobStatus.getRunState()) {
-                Map<String, Object> m = getJob(jobClient, jobStatus);
-                if (m != null) {
-                    l.add(new JSONObject(m));
+        if (jobStatuses != null) {
+            for (JobStatus jobStatus : jobStatuses) {
+                if (state == ALL || state == jobStatus.getRunState()) {
+                    Map<String, Object> m = getJob(jobClient, jobStatus);
+                    if (m != null) {
+                        l.add(new JSONObject(m));
+                    }
                 }
             }
         }

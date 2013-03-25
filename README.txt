@@ -26,9 +26,10 @@ set fs.default.name property to the NameNode URI, and set job.queue.limit proper
 job queue limit is 0, does not manage the queue.
 For example:
 
-  mapred.job.tracker=localhost:9001
-  fs.default.name=hdfs://localhost:9000
-  hiveserver=localhost:10000 # option
+  mapreduce.jobtracker.address=jobtracker:8021
+  fs.default.name=hdfs://namenode:9000
+  hiveserver=hiveserver:10000 # option
+  hiveserver.version=2 # option
   job.queue.limit=2
 
 When you change the boot port, edit the huahin-manager-x.x.x/conf/port file.

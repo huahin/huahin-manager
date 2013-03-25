@@ -48,13 +48,16 @@ import org.json.JSONObject;
 public class HiveService extends Service {
     private static final Log log = LogFactory.getLog(HiveService.class);
 
-    private static final String DRIVER_NAME = "org.apache.hadoop.hive.jdbc.HiveDriver";
-    private static final String CONNECTION_FORMAT = "jdbc:hive://%s/default";
+    private static final String V1_DRIVER_NAME = "org.apache.hadoop.hive.jdbc.HiveDriver";
+    private static final String V2_DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
+    private static final String V1_CONNECTION_FORMAT = "jdbc:hive://%s/default";
+    private static final String V2_CONNECTION_FORMAT = "jdbc:hive2://%s/default";
 
     private static final String JSON_QUERY = "query";
 
     private String hiveserver;
-
+    private String driverName;
+    private String connectionFormat;
 
     @Path("/execute")
     @POST
@@ -76,8 +79,8 @@ public class HiveService extends Service {
                 return new JSONObject(status);
             }
 
-            Class.forName(DRIVER_NAME);
-            Connection con = DriverManager.getConnection(String.format(CONNECTION_FORMAT, hiveserver), "", "");
+            Class.forName(driverName);
+            Connection con = DriverManager.getConnection(String.format(connectionFormat, hiveserver), "", "");
             Statement stmt = con.createStatement();
 
             stmt.execute(query);
@@ -116,8 +119,8 @@ public class HiveService extends Service {
                 return;
             }
 
-            Class.forName(DRIVER_NAME);
-            Connection con = DriverManager.getConnection(String.format(CONNECTION_FORMAT, hiveserver), "", "");
+            Class.forName(driverName);
+            Connection con = DriverManager.getConnection(String.format(connectionFormat, hiveserver), "", "");
             Statement stmt = con.createStatement();
 
             ResultSet resultSet = stmt.executeQuery(query);
@@ -147,5 +150,11 @@ public class HiveService extends Service {
      */
     public void init() {
         hiveserver = properties.getHiveserver();
+        driverName = V1_DRIVER_NAME;
+        connectionFormat = V1_CONNECTION_FORMAT;
+        if (properties.getHiveserverVersion() == 2) {
+            driverName = V2_DRIVER_NAME;
+            connectionFormat = V2_CONNECTION_FORMAT;
+        }
     }
 }

@@ -24,6 +24,7 @@ import java.sql.Statement;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.huahinframework.manager.Properties;
 
 /**
  *
@@ -31,20 +32,30 @@ import org.apache.commons.logging.LogFactory;
 public class RunHiveQueue extends Thread {
     private static final Log log = LogFactory.getLog(RunHiveQueue.class);
 
-    private static final String DRIVER_NAME = "org.apache.hadoop.hive.jdbc.HiveDriver";
-    private static final String CONNECTION_FORMAT = "jdbc:hive://%s/default";
+    private static final String V1_DRIVER_NAME = "org.apache.hadoop.hive.jdbc.HiveDriver";
+    private static final String V2_DRIVER_NAME = "org.apache.hive.jdbc.HiveDriver";
+    private static final String V1_CONNECTION_FORMAT = "jdbc:hive://%s/default";
+    private static final String V2_CONNECTION_FORMAT = "jdbc:hive2://%s/default";
 
     private String hiveserver;
+    private String driverName;
+    private String connectionFormat;
     private String queuePath;
     private Queue queue;
 
     /**
      * @param queue
      */
-    public RunHiveQueue(String hiveserver, String queuePath, Queue queue) {
-        this.hiveserver = hiveserver;
+    public RunHiveQueue(Properties properties, String queuePath, Queue queue) {
         this.queuePath = queuePath;
         this.queue = queue;
+        this.hiveserver = properties.getHiveserver();
+        this.driverName = V1_DRIVER_NAME;
+        this.connectionFormat = V1_CONNECTION_FORMAT;
+        if (properties.getHiveserverVersion() == 2) {
+            this.driverName = V2_DRIVER_NAME;
+            this.connectionFormat = V2_CONNECTION_FORMAT;
+        }
     }
 
     /* (non-Javadoc)
@@ -53,8 +64,8 @@ public class RunHiveQueue extends Thread {
     @Override
     public void run() {
         try {
-            Class.forName(DRIVER_NAME);
-            Connection con = DriverManager.getConnection(String.format(CONNECTION_FORMAT, hiveserver), "", "");
+            Class.forName(driverName);
+            Connection con = DriverManager.getConnection(String.format(connectionFormat, hiveserver), "", "");
             Statement stmt = con.createStatement();
             stmt.executeQuery(queue.getScript());
         } catch (Exception e) {

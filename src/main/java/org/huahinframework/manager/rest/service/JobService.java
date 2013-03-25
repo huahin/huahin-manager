@@ -60,6 +60,7 @@ import org.json.JSONObject;
 /**
  *
  */
+@SuppressWarnings("deprecation")
 @Path("/job")
 public class JobService extends Service {
     private static final Log log = LogFactory.getLog(JobService.class);

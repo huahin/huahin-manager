@@ -23,9 +23,10 @@ package org.huahinframework.manager;
 public class Properties {
     private static final String HUAHIN_HOME = System.getProperty("huahin.home");
 
-    private String mapredJobTracker;
-    private String fsDefaultName;
+    private String mapreduceJobTrackerAddress;
+    private String fsDefaultFS;
     private String hiveserver;
+    private int hiveserverVersion;
     private int jobQueueLimit;
 
     /**
@@ -36,45 +37,31 @@ public class Properties {
     }
 
     /**
-     * @return the mapredJobTracker
+     * @return the mapreduceJobTrackerAddress
      */
-    public String getMapredJobTracker() {
-        return mapredJobTracker;
+    public String getMapreduceJobtrackerAddress() {
+        return mapreduceJobTrackerAddress;
     }
 
     /**
-     * @param mapredJobTracker the mapredJobTracker to set
+     * @param mapreduceJobTrackerAddress the mapreduceJobTrackerAddress to set
      */
-    public void setMapredJobTracker(String mapredJobTracker) {
-        this.mapredJobTracker = mapredJobTracker;
+    public void setMapreduceJobtrackerAddress(String mapreduceJobTrackerAddress) {
+        this.mapreduceJobTrackerAddress = mapreduceJobTrackerAddress;
     }
 
     /**
-     * @return the fsDefaultName
+     * @return the fsDefaultFS
      */
-    public String getFsDefaultName() {
-        return fsDefaultName;
+    public String getFsDefaultFS() {
+        return fsDefaultFS;
     }
 
     /**
-     * @param fsDefaultName the fsDefaultName to set
+     * @param fsDefaultFS the fsDefaultFS to set
      */
-    public void setFsDefaultName(String fsDefaultName) {
-        this.fsDefaultName = fsDefaultName;
-    }
-
-    /**
-     * @return the jobQueueLimit
-     */
-    public int getJobQueueLimit() {
-        return jobQueueLimit;
-    }
-
-    /**
-     * @param jobQueueLimit the jobQueueLimit to set
-     */
-    public void setJobQueueLimit(int jobQueueLimit) {
-        this.jobQueueLimit = jobQueueLimit;
+    public void setFsDefaultFS(String fsDefaultFS) {
+        this.fsDefaultFS = fsDefaultFS;
     }
 
     /**
@@ -89,5 +76,33 @@ public class Properties {
      */
     public void setHiveserver(String hiveserver) {
         this.hiveserver = hiveserver;
+    }
+
+    /**
+     * @return the hiveserverVersion
+     */
+    public int getHiveserverVersion() {
+        return hiveserverVersion;
+    }
+
+    /**
+     * @param hiveserverVersion the hiveserverVersion to set
+     */
+    public void setHiveserverVersion(int hiveserverVersion) {
+        this.hiveserverVersion = hiveserverVersion;
+    }
+
+    /**
+     * @return the jobQueueLimit
+     */
+    public int getJobQueueLimit() {
+        return jobQueueLimit;
+    }
+
+    /**
+     * @param jobQueueLimit the jobQueueLimit to set
+     */
+    public void setJobQueueLimit(int jobQueueLimit) {
+        this.jobQueueLimit = jobQueueLimit;
     }
 }
