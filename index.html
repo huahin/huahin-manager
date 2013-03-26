@@ -40,10 +40,11 @@ Huahin can get a list of MapReduce jobs, get status, do a kill for the job, and 
 
 <h3>Download</h3>
 
-<p><a href="http://huahin-framework.googlecode.com/files/huahin-manager-a-0.2.1.tar.gz">Huahin Manager 0.2.1 for for Apache Hadoop 2.0.2-alpha</a>
-<br><a href="http://huahin-framework.googlecode.com/files/huahin-manager-c-0.2.1.tar.gz">Huahin Manager 0.2.1 for CDH4</a>
-<br><a href="http://huahin-framework.googlecode.com/files/huahin-manager-a-0.1.4.tar.gz">Huahin Manager 0.1.4 for Apache Hadoop 1.0.4</a>
-<br><a href="http://huahin-framework.googlecode.com/files/huahin-manager-c-0.1.4.tar.gz">Huahin Manager 0.1.4 for CDH3</a>
+<p><a href="http://huahin-framework.googlecode.com/files/huahin-manager-a-0.2.2.tar.gz">Huahin Manager 0.2.2 for for Apache Hadoop 2.0.3-alpha</a>
+<br><a href="http://huahin-framework.googlecode.com/files/huahin-manager-c-0.2.2.tar.gz">Huahin Manager 0.2.2 for CDH4 + YARN</a>
+<br><a href="http://huahin-framework.googlecode.com/files/huahin-manager-c-0.2.2-mr1.tar.gz">Huahin Manager 0.2.2-mr1 for CDH4 + MRv1</a>
+<br><a href="http://huahin-framework.googlecode.com/files/huahin-manager-a-0.1.5.tar.gz">Huahin Manager 0.1.5 for Apache Hadoop 1.0.4</a>
+<br><a href="http://huahin-framework.googlecode.com/files/huahin-manager-c-0.1.5.tar.gz">Huahin Manager 0.1.5 for CDH3</a>
 <br></p>
 
 <h3>Requirements</h3>
@@ -68,27 +69,36 @@ job queue limit is 0, does not manage the queue.
 <br>
 For 0.1.X example:</p>
 
-<pre><code>mapred.job.tracker=localhost:9001
-fs.default.name=hdfs://localhost:9000
-hiveserver=localhost:10000 # option
+<pre><code>mapred.job.tracker=jobtracker:9001
+fs.default.name=hdfs://namenode:9000
+hiveserver=hiveserver:10000 # option
 job.queue.limit=2
 </code></pre>
 
 <p>For 0.2.X example:</p>
 
-<pre><code>yarn.resourcemanager.address=localhost:8032
-mapreduce.jobhistory.address=localhost:10020
-fs.defaultFS=hdfs://localhost:8020
-yarn.resourcemanager.webapp.address=localhost:8088
-yarn.nodemanager.webapp.address=localhost:8042
-yarn.web-proxy.address=localhost:8100
-mapreduce.jobhistory.webapp.address=localhost:19888
+<pre><code>yarn.resourcemanager.address=resourcemanager:8032
+mapreduce.jobhistory.address=jobhistory:10020
+fs.defaultFS=hdfs://namenode:8020
+yarn.resourcemanager.webapp.address=resourcemanager:8088
+yarn.nodemanager.webapp.address=nodemanager:8042
+yarn.web-proxy.address=web-proxy:8100
+mapreduce.jobhistory.webapp.address=jobhistory:19888
 # option: if you do not set it will be the default.
 yarn.application.classpath=$HADOOP_CONF_DIR,$HADOOP_COMMON_HOME/*,...
 # option
-hiveserver=localhost:10000
+hiveserver=hiveserver:10000
 # option
 hiveserver.version=2
+job.queue.limit=2
+</code></pre>
+
+<p>For 0.2.X-mr1 example:</p>
+
+<pre><code>mapreduce.jobtracker.address=jobtracker:8021
+fs.default.name=hdfs://namenode:9000
+hiveserver=hiveserver:10000 # option
+hiveserver.version=2 # option
 job.queue.limit=2
 </code></pre>
 
@@ -248,7 +258,7 @@ ARGUMENTS specifies the JSON. {CLASS} specifies the run class. arguments:{ARGS} 
 
 <p>For example:</p>
 
-<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/register -F JAR=@mapreduce.jar \
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/register -F JAR=@mapreduce.jar" \
 -F ARGUMENTS='{"class":"examples.WordCount","arguments":["/user/huahin/input","/user/huahin/output"]}'
 </code></pre>
 
@@ -263,7 +273,7 @@ ARGUMENTS specifies the JSON. {script} specifies the hive query.</p>
 
 <p>For example:</p>
 
-<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/hive/register \
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/hive/register" \
 -F ARGUMENTS='{"script":"insert overwrite directory '\''/tmp/out'\'' select word, count(word) as cnt from words group by word"}'
 </code></pre>
 
@@ -278,7 +288,7 @@ ARGUMENTS specifies the JSON. {script} specifies the Pig Latin.</p>
 
 <p>For example:</p>
 
-<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/pig/register \
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/job/pig/register" \
 -F ARGUMENTS='{"script":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
 </code></pre>
 
@@ -338,7 +348,7 @@ ARGUMENTS specifies the JSON. {script} specifies the Pig Latin.</p>
 
 <h3>Huahin Manager REST Hive APIs</h3>
 
-<p>Execution of the query does not return value<br>
+<p>Execution of the query. If it have a return value, it will be returned along with the number of executed query.<br>
 ARGUMENTS specifies the JSON. {query} specifies the hive query.</p>
 
 <pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/hive/execute -F ARGUMENTS='{"query":"{query}"}'
@@ -346,13 +356,18 @@ ARGUMENTS specifies the JSON. {query} specifies the hive query.</p>
 
 <p>For example:</p>
 
-<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/hive/execute \
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/hive/execute" \
 -F ARGUMENTS='{"query":"create table foo(bar string)"}'
+
+~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/hive/execute" ¥
+-F ARGUMENTS='{"query":"create table foo(bar string); insert overwrite table foo select * from words limit 100;"}'
 </code></pre>
 
 <p><br></p>
 
-<p>Query execution with return value<br>
+<p>** Notice **
+This method is deprecate.
+Query execution with return value<br>
 The return value is returned in the stream.
 ARGUMENTS specifies the JSON. {query} specifies the hive query.</p>
 
@@ -361,7 +376,7 @@ ARGUMENTS specifies the JSON. {query} specifies the hive query.</p>
 
 <p>For example:</p>
 
-<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/hive/executeQuery \
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/hive/executeQuery" \
 -F ARGUMENTS='{"query":"select word, count(word) as cnt from words group by word"}'
 </code></pre>
 
@@ -377,7 +392,7 @@ ARGUMENTS specifies the JSON. {variable} is that specifies the dump. {query} spe
 
 <p>For example:</p>
 
-<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/pig/dump \
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/pig/dump" \
 -F ARGUMENTS='{"dump":"d","query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;"}'
 </code></pre>
 
@@ -392,7 +407,7 @@ ARGUMENTS specifies the JSON. {query} specifies the Pig Latin.</p>
 
 <p>For example:</p>
 
-<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/pig/store \
+<pre><code>~ $ curl -X POST "http://&lt;HOSTNAME&gt;:9010/pig/store" \
 -F ARGUMENTS='{"query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
 </code></pre>
 
