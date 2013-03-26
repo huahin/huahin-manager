@@ -26,27 +26,36 @@ set fs.default.name property to the NameNode URI, and set job.queue.limit proper
 job queue limit is 0, does not manage the queue.
 For 0.1.X example:
 
-  mapred.job.tracker=localhost:9001
-  fs.default.name=hdfs://localhost:9000
-  hiveserver=localhost:10000 # option
+  mapred.job.tracker=jobtracker:9001
+  fs.default.name=hdfs://namenode:9000
+  hiveserver=hiveserver:10000 # option
   job.queue.limit=2
 
 For 0.2.X example:
 
-  yarn.resourcemanager.address=localhost:8032
-  mapreduce.jobhistory.address=localhost:10020
-  fs.defaultFS=hdfs://localhost:8020
-  yarn.resourcemanager.webapp.address=localhost:8088
-  yarn.nodemanager.webapp.address=localhost:8042
-  yarn.web-proxy.address=localhost:8100
-  mapreduce.jobhistory.webapp.address=localhost:19888
+  yarn.resourcemanager.address=resourcemanager:8032
+  mapreduce.jobhistory.address=jobhistory:10020
+  fs.defaultFS=hdfs://namenode:8020
+  yarn.resourcemanager.webapp.address=resourcemanager:8088
+  yarn.nodemanager.webapp.address=nodemanager:8042
+  yarn.web-proxy.address=web-proxy:8100
+  mapreduce.jobhistory.webapp.address=jobhistory:19888
   # option: if you do not set it will be the default.
   yarn.application.classpath=$HADOOP_CONF_DIR,$HADOOP_COMMON_HOME/*,...
   # option
-  hiveserver=localhost:10000
+  hiveserver=hiveserver:10000
   # option
   hiveserver.version=2
   job.queue.limit=2
+
+For 0.2.X-mr1 example:
+
+  mapreduce.jobtracker.address=jobtracker:8021
+  fs.default.name=hdfs://namenode:9000
+  hiveserver=hiveserver:10000 # option
+  hiveserver.version=2 # option
+  job.queue.limit=2
+
 
 When you change the boot port, edit the huahin-manager-x.x.x/conf/port file.
 
@@ -130,7 +139,7 @@ Register Hive job
   ~ $ curl -X POST "http://<HOSTNAME>:9010/job/hive/register -F ARGUMENTS='{"script":"<script>"}'
 
   For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/job/hive/register \
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/job/hive/register" \
   -F ARGUMENTS='{"script":"insert overwrite directory '\''/tmp/out'\'' select word, count(word) as cnt from words group by word"}'
 
 Register Pig job
@@ -139,7 +148,7 @@ Register Pig job
   ~ $ curl -X POST "http://<HOSTNAME>:9010/job/pig/register -F ARGUMENTS='{"script":"<script>"}'
 
   For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/job/pig/register \
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/job/pig/register" \
   -F ARGUMENTS='{"script":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
 
 Kill job for ID.
@@ -177,21 +186,26 @@ Kill queue for ID.
 -----------------------------------------------------------------------------
 Huahin Manager REST Hive APIs
 
-Execution of the query does not return value
+Execution of the query. If it have a return value, it will be returned along with the number of executed query.
   ARGUMENTS specifies the JSON. <query> specifies the hive query.
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute -F ARGUMENTS='{"query":"<query>"}'
 
   For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute \
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute" \
   -F ARGUMENTS='{"query":"create table foo(bar string)"}'
 
+  ‾ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute" ¥
+  -F ARGUMENTS='{"query":"create table foo(bar string); insert overwrite table foo select * from words limit 100;"}'
+
+** Notice **
+This method is deprecate.
 Query execution with return value
   The return value is returned in the stream.
   ARGUMENTS specifies the JSON. <query> specifies the hive query.
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/executeQuery -F ARGUMENTS='{"query":"<query>"}'
 
   For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/executeQuery \
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/executeQuery" \
   -F ARGUMENTS='{"query":"select word, count(word) as cnt from words group by word"}'
 
 -----------------------------------------------------------------------------
@@ -202,7 +216,7 @@ Execution of the dump
   ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump -F ARGUMENTS='{"dump":"<variable>","query":"<query>"}'
 
   For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump \
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/dump" \
   -F ARGUMENTS='{"dump":"d","query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;"}'
 
 Execution of the store
@@ -211,7 +225,7 @@ Execution of the store
   ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store -F ARGUMENTS='{"query":"<query>"}'
 
   For example:
-  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store \
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/pig/store" \
   -F ARGUMENTS='{"query":"a = load '\''/user/huahin/input'\'' as (text:chararray);b = foreach a generate flatten(TOKENIZE(text)) as word;c = group b by word;d = foreach c generate group as word, COUNT(b) as count;store d into '\''/tmp/out'\'';"}'
 
 -----------------------------------------------------------------------------

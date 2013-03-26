@@ -146,8 +146,7 @@ public class PigService extends Service {
             throws IOException {
         Map<String, String> m = new HashMap<String, String>();
         m.put(Response.STATUS, status);
-        JSONObject jsonObject = new JSONObject(m);
-        out.write(jsonObject.toString());
+        out.write(new JSONObject(m).toString());
         out.flush();
         out.close();
         return;

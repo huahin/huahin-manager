@@ -63,7 +63,7 @@ public class YARNAPIService extends Service {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public JSONObject getProxy(@Context HttpServletRequest request) {
-        String path = request.getRequestURI().replace("/api/proxy", "");
+        String path = request.getRequestURI().replace("/api", "");
         return get(HTTP + properties.getYarnWebProxyAddress() + path);
     }
 

@@ -21,7 +21,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.huahinframework</groupId>
   <artifactId>huahin-manager</artifactId>
-  <version>0.2.1</version>
+  <version>0.2.2</version>
   <packaging>jar</packaging>
 
   <name>huahin-manager</name>
@@ -78,7 +78,6 @@
       <properties>
         <hadoop.version>2.0.3-alpha</hadoop.version>
         <hive.version>0.10.0</hive.version>
-        <thrift.version>0.9.0</thrift.version>
         <pig.version>0.11.0</pig.version>
         <bname>huahin-manager-a-${project.version}</bname>
       </properties>
@@ -94,7 +93,6 @@
       <properties>
         <hadoop.version>2.0.0-cdh4.2.0</hadoop.version>
         <hive.version>0.10.0-cdh4.2.0</hive.version>
-        <thrift.version>0.9.0</thrift.version>
         <pig.version>0.10.0-cdh4.2.0</pig.version>
         <bname>huahin-manager-c-${project.version}</bname>
       </properties>
@@ -185,6 +183,10 @@
       <version>${hadoop.version}</version>
       <exclusions>
         <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.apache.zookeeper</groupId>
           <artifactId>zookeeper</artifactId>
         </exclusion>
@@ -215,6 +217,10 @@
       <artifactId>hadoop-mapreduce-client-core</artifactId>
       <version>${hadoop.version}</version>
       <exclusions>
+        <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.glassfish.grizzly</groupId>
           <artifactId>grizzly-framework</artifactId>
@@ -283,6 +289,10 @@
       <version>${hadoop.version}</version>
       <exclusions>
         <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.glassfish.grizzly</groupId>
           <artifactId>grizzly-framework</artifactId>
         </exclusion>
@@ -349,6 +359,10 @@
       <artifactId>hadoop-yarn-server-resourcemanager</artifactId>
       <version>${hadoop.version}</version>
       <exclusions>
+        <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.glassfish.grizzly</groupId>
           <artifactId>grizzly-framework</artifactId>
@@ -420,6 +434,10 @@
       <artifactId>hadoop-hdfs</artifactId>
       <version>${hadoop.version}</version>
       <exclusions>
+        <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.glassfish.grizzly</groupId>
           <artifactId>grizzly-framework</artifactId>
@@ -497,6 +515,10 @@
       <version>${hive.version}</version>
       <exclusions>
         <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.apache.hadoop</groupId>
           <artifactId>hadoop-core</artifactId>
         </exclusion>
@@ -524,6 +546,10 @@
       <artifactId>pig</artifactId>
       <version>${pig.version}</version>
       <exclusions>
+        <exclusion>
+          <groupId>commons-codec</groupId>
+          <artifactId>commons-codec</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>javax.servlet.jsp</groupId>
           <artifactId>jsp-api</artifactId>
@@ -622,6 +648,12 @@
       <groupId>commons-httpclient</groupId>
       <artifactId>commons-httpclient</artifactId>
       <version>3.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.7</version>
     </dependency>
 
     <dependency>
