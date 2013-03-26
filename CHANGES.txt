@@ -1,5 +1,6 @@
 0.2.2-mr1
  * update: supported CDH4 + MRv1
+ * update: Multiple execution of Hive queries
 
 0.1.4
  * add: supported execute query of Hive

@@ -161,7 +161,7 @@ Kill queue for ID.
 -----------------------------------------------------------------------------
 Huahin Manager REST Hive APIs
 
-Execution of the query does not return value
+Execution of the query. If it have a return value, it will be returned along with the number of executed query.
   ARGUMENTS specifies the JSON. <query> specifies the hive query.
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute -F ARGUMENTS='{"query":"<query>"}'
 
@@ -169,6 +169,11 @@ Execution of the query does not return value
   ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute \
   -F ARGUMENTS='{"query":"create table foo(bar string)"}'
 
+  ~ $ curl -X POST "http://<HOSTNAME>:9010/hive/execute \
+  -F ARGUMENTS='{"query":"create table foo(bar string); insert overwrite table foo select * from words limit 100;"}'
+
+** Notice **
+This method is deprecate.
 Query execution with return value
   The return value is returned in the stream.
   ARGUMENTS specifies the JSON. <query> specifies the hive query.

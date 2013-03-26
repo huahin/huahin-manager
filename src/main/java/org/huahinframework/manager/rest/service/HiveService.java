@@ -34,6 +34,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wink.common.internal.utils.MediaTypeUtils;
@@ -54,6 +55,7 @@ public class HiveService extends Service {
     private static final String V2_CONNECTION_FORMAT = "jdbc:hive2://%s/default";
 
     private static final String JSON_QUERY = "query";
+    private static final String RESULT = "result";
 
     private String hiveserver;
     private String driverName;
@@ -63,42 +65,111 @@ public class HiveService extends Service {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaTypeUtils.MULTIPART_FORM_DATA)
-    public JSONObject execute(InMultiPart inMP) {
+    public void execute(@Context HttpServletResponse response,
+                        InMultiPart inMP) throws IOException {
+        OutputStreamWriter out = null;
         Map<String, String> status = new HashMap<String, String>();
-        status.put(Response.STATUS, "SCCESS");
+        Map<String, Object> result = new HashMap<String, Object>();
         try {
+            out = new OutputStreamWriter(response.getOutputStream());
             if (!inMP.hasNext()) {
                 status.put(Response.STATUS, "Query is empty");
-                return new JSONObject(status);
+                out.write(new JSONObject(status).toString());
+                out.flush();
+                out.close();
+                return;
             }
 
             JSONObject argument = createJSON(inMP.next().getInputStream());
             String query = argument.getString(JSON_QUERY);
             if (query == null || query.isEmpty()) {
                 status.put(Response.STATUS, "Query is empty");
-                return new JSONObject(status);
+                out.write(new JSONObject(status).toString());
+                out.flush();
+                out.close();
+                return;
             }
 
             Class.forName(driverName);
             Connection con = DriverManager.getConnection(String.format(connectionFormat, hiveserver), "", "");
             Statement stmt = con.createStatement();
 
-            stmt.execute(query);
+            int queryNo = 1;
+            String command = "";
+            for (String oneCmd : query.split(";")) {
+                if (StringUtils.endsWith(oneCmd, "\\")) {
+                    command += StringUtils.chop(oneCmd) + ";";
+                    continue;
+                } else {
+                    command += oneCmd;
+                }
+
+                if (StringUtils.isBlank(command)) {
+                  continue;
+                }
+
+                boolean b = stmt.execute(command);
+                if (b) {
+                    result.clear();
+                    result.put(JSON_QUERY, queryNo);
+
+                    ResultSet resultSet = stmt.getResultSet();
+                    while (resultSet.next()) {
+                        JSONObject jsonObject = new JSONObject();
+                        for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
+                            jsonObject.put(resultSet.getMetaData().getColumnName(i), resultSet.getString(i));
+                        }
+                        result.put(RESULT, jsonObject);
+
+                        out.write(new JSONObject(result).toString());
+                        out.flush();
+                    }
+
+                    if (result.size() == 1) {
+                        status.put(Response.STATUS, "SCCESS");
+                        result.put(RESULT, status);
+
+                        JSONObject jsonObject = new JSONObject(result);
+                        out.write(jsonObject.toString());
+                        out.flush();
+                    }
+                } else {
+                    result.clear();
+                    status.clear();
+
+                    result.put(JSON_QUERY, queryNo);
+
+                    status.put(Response.STATUS, "SCCESS");
+                    result.put(RESULT, status);
+
+                    JSONObject jsonObject = new JSONObject(result);
+                    out.write(jsonObject.toString());
+                    out.flush();
+                }
+
+                command = "";
+                queryNo++;
+            }
 
             con.close();
+            out.close();
         } catch (Exception e) {
             e.printStackTrace();
             log.error(e);
-            status.put(Response.STATUS, e.getMessage());
+            if (out != null) {
+                status.put(Response.STATUS, e.getMessage());
+                out.write(new JSONObject(status).toString());
+                out.flush();
+                out.close();
+            }
         }
-
-        return new JSONObject(status);
     }
 
     @Path("/executeQuery")
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaTypeUtils.MULTIPART_FORM_DATA)
+    @Deprecated
     public void executeQuery(@Context HttpServletResponse response,
                              InMultiPart inMP) throws IOException {
         OutputStreamWriter out = new OutputStreamWriter(response.getOutputStream());
@@ -112,8 +183,7 @@ public class HiveService extends Service {
             String query = argument.getString(JSON_QUERY);
             if (query == null || query.isEmpty()) {
                 status.put(Response.STATUS, "Query is empty");
-                JSONObject jsonObject = new JSONObject(status);
-                out.write(jsonObject.toString());
+                out.write(new JSONObject(status).toString());
                 out.flush();
                 out.close();
                 return;
@@ -138,8 +208,7 @@ public class HiveService extends Service {
             e.printStackTrace();
             log.error(e);
             status.put(Response.STATUS, e.getMessage());
-            JSONObject jsonObject = new JSONObject(status);
-            out.write(jsonObject.toString());
+            out.write(new JSONObject(status).toString());
             out.flush();
             out.close();
         }
