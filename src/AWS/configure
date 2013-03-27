@@ -23,18 +23,18 @@ then
   exit 0
 fi
 
-wget https://s3.amazonaws.com/huahin/manager/huahin-manager-a-0.1.3.tar.gz
+wget https://s3.amazonaws.com/huahin/manager/huahin-manager-a-0.1.5.tar.gz
 mkdir -p /home/hadoop/huahin-manager
-tar -C /home/hadoop/huahin-manager -xzf huahin-manager-a-0.1.3.tar.gz
+tar -C /home/hadoop/huahin-manager -xzf huahin-manager-a-0.1.5.tar.gz
 
 HOST=`hostname`
 JOBTRACKER=$HOST:9001
 NAMENODE=hdfs://$HOST:9000
 QUEUE=0
 
-echo "mapred.job.tracker=$JOBTRACKER" > /home/hadoop/huahin-manager/huahin-manager-0.1.3/conf/huahinManager.properties
-echo "fs.default.name=$NAMENODE" >> /home/hadoop/huahin-manager/huahin-manager-0.1.3/conf/huahinManager.properties
-echo "job.queue.limit=$QUEUE" >> /home/hadoop/huahin-manager/huahin-manager-0.1.3/conf/huahinManager.properties
-/home/hadoop/huahin-manager/huahin-manager-0.1.3/bin/manager start >> /home/hadoop/huahin-manager/huahin-manager-0.1.3/log/huahin-manager.log
+echo "mapred.job.tracker=$JOBTRACKER" > /home/hadoop/huahin-manager/huahin-manager-0.1.5/conf/huahinManager.properties
+echo "fs.default.name=$NAMENODE" >> /home/hadoop/huahin-manager/huahin-manager-0.1.5/conf/huahinManager.properties
+echo "job.queue.limit=$QUEUE" >> /home/hadoop/huahin-manager/huahin-manager-0.1.5/conf/huahinManager.properties
+/home/hadoop/huahin-manager/huahin-manager-0.1.5/bin/manager start >> /home/hadoop/huahin-manager/huahin-manager-0.1.5/log/huahin-manager.log
 
 exit 0
