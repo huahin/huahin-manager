@@ -125,6 +125,7 @@ public class JobUtils {
         List<JSONObject> l = new ArrayList<JSONObject>();
 
         JobClient jobClient = new JobClient(conf);
+        jobClient.setConf(conf);
 
         JobStatus[] jobStatuses = jobClient.getAllJobs();
         if (jobStatuses != null) {
