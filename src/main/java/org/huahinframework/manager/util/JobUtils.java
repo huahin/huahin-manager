@@ -43,6 +43,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Counters;
+import org.apache.hadoop.mapred.JobInProgress;
 import org.apache.hadoop.mapred.JobStatus;
 import org.apache.hadoop.mapred.RunningJob;
 import org.huahinframework.manager.Properties;
@@ -160,6 +162,18 @@ public class JobUtils {
         startTime.setTimeInMillis(jobStatus.getStartTime());
         m.put(Response.START_TIME, startTime.getTime().toString());
         m.put(Response.NAME, runningJob.getJobName());
+        try {
+            Counters jcnts = runningJob.getCounters();
+
+            m.put(Response.MAPS_LAUNCHED, jcnts.getCounter(JobInProgress.Counter.TOTAL_LAUNCHED_MAPS));
+            m.put(Response.REDUCES_LAUNCHED, jcnts.getCounter(JobInProgress.Counter.TOTAL_LAUNCHED_REDUCES));
+        }
+        catch (Exception e) {
+            log.error("ERROR| Unable to get the job counters for JobID! " + jobStatus.getJobID().toString());
+            e.printStackTrace();
+            log.error(e);
+        }
+
         m.put(Response.STATE, JobStatus.getJobRunState(jobStatus.getRunState()));
         m.put(Response.MAP_COMPLETE, jobStatus.mapProgress() * 100 + "%");
         m.put(Response.REDUCE_COMPLETE, jobStatus.reduceProgress() * 100 + "%");
