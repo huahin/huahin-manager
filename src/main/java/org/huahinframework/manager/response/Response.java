@@ -32,7 +32,8 @@ public class Response {
     public static final String MAP_COMPLETE = "mapComplete";
     public static final String REDUCE_COMPLETE = "reduceComplete";
     public static final String SCHEDULEING_INFO = "schedulingInfo";
-
+    public static final String MAPS_LAUNCHED = "mapsLaunched";
+    public static final String REDUCES_LAUNCHED = "reducesLaunched";
     public static final String GROUPS = "groups";
 
     public static final String JOB_FILE = "jobFile";
