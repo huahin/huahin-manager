@@ -45,6 +45,10 @@ case $1 in
       rm -f $HUAHIN_PID
     fi
     ;;
+  status)
+        status -p ${HUAHIN_PID} huahin-manager
+        exit $?
+        ;;    
   restart)
     echo "Stopping huahin manager"
     if [ -e $HUAHIN_PID ];
